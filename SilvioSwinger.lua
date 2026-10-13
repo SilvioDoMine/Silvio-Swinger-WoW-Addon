@@ -548,16 +548,25 @@ function BuildOptions()
 	panel.name = "SilvioSwinger"
 	panel:Hide()
 
-	local title = panel:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
+	-- O painel do 2.4.3 é estreito e baixo: tudo fica numa coluna com barra de rolagem
+	local scroll = CreateFrame("ScrollFrame", "SilvioSwingerOptionsScroll", panel, "UIPanelScrollFrameTemplate")
+	scroll:SetPoint("TOPLEFT", 0, -4)
+	scroll:SetPoint("BOTTOMRIGHT", -26, 4)
+	local content = CreateFrame("Frame", nil, scroll)
+	content:SetWidth(360) content:SetHeight(640)
+	scroll:SetScrollChild(content)
+
+	local title = content:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
 	title:SetPoint("TOPLEFT", 16, -16)
 	title:SetText("SilvioSwinger")
-	local desc = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+	local desc = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	desc:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -6)
+	desc:SetWidth(340) desc:SetJustifyH("LEFT")
 	desc:SetText("Seal twisting para Paladino Retribution. Shift + arrastar move a janela.")
 
 	-- Checkbox ligado a um campo do db
 	local function Check(key, label, anchor, onChange)
-		local cb = CreateFrame("CheckButton", "SilvioSwingerOpt_" .. key, panel, "OptionsCheckButtonTemplate")
+		local cb = CreateFrame("CheckButton", "SilvioSwingerOpt_" .. key, content, "OptionsCheckButtonTemplate")
 		cb:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, -2)
 		getglobal(cb:GetName() .. "Text"):SetText(label)
 		cb:SetScript("OnShow", function(self) self:SetChecked(db[key] and 1 or nil) end)
@@ -571,7 +580,7 @@ function BuildOptions()
 	-- Slider ligado a um campo do db (fmt formata o valor mostrado)
 	local function Slider(key, label, low, high, step, fmt, anchor, onChange)
 		local name = "SilvioSwingerOpt_" .. key
-		local sl = CreateFrame("Slider", name, panel, "OptionsSliderTemplate")
+		local sl = CreateFrame("Slider", name, content, "OptionsSliderTemplate")
 		sl:SetWidth(200)
 		sl:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, -26)
 		sl:SetMinMaxValues(low, high)
@@ -597,8 +606,8 @@ function BuildOptions()
 		return sl
 	end
 
-	-- Coluna esquerda: opções liga/desliga
-	local anchor = CreateFrame("Frame", nil, panel)
+	-- Opções liga/desliga
+	local anchor = CreateFrame("Frame", nil, content)
 	anchor:SetWidth(1) anchor:SetHeight(1)
 	anchor:SetPoint("TOPLEFT", desc, "BOTTOMLEFT", -2, -8)
 
@@ -609,25 +618,25 @@ function BuildOptions()
 	local c5 = Check("dmgMsg", "Mostrar \"TWIST DAMAGE\" no topo da tela", c4)
 	local c6 = Check("breakdown", "Detalhar o dano (hit + SoC + SoB)", c5)
 
-	-- Coluna direita: sliders de tempo / aparência
-	local right = CreateFrame("Frame", nil, panel)
-	right:SetWidth(1) right:SetHeight(1)
-	right:SetPoint("TOPLEFT", panel, "TOPLEFT", 330, -50)
+	-- Sliders de tempo / aparência, embaixo das opções
+	local header = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	header:SetPoint("TOPLEFT", c6, "BOTTOMLEFT", 4, -16)
+	header:SetText("Ajustes")
 
-	local s1 = Slider("window", "Janela de twist", 0.10, 0.80, 0.01, "%.2fs", right)
+	local s1 = Slider("window", "Janela de twist", 0.10, 0.80, 0.01, "%.2fs", header)
 	local s2 = Slider("buffer", "Margem extra (além da latência)", 0, 0.30, 0.01, "%.2fs", s1)
 	local s3 = Slider("csSlack", "Folga para Crusader Strike", 0, 0.50, 0.01, "%.2fs", s2)
 	local s4 = Slider("lowMana", "Aviso de mana baixa", 0, 0.50, 0.01, "%.2f", s3)
 	local s5 = Slider("scale", "Escala da janela", 0.5, 2.0, 0.05, "%.2f", s4, function(v) f:SetScale(v) end)
 
 	-- Botões
-	local b1 = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+	local b1 = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
 	b1:SetWidth(150) b1:SetHeight(22)
-	b1:SetPoint("TOPLEFT", c6, "BOTTOMLEFT", 4, -20)
+	b1:SetPoint("TOPLEFT", s5, "BOTTOMLEFT", 0, -30)
 	b1:SetText("Resetar posição")
 	b1:SetScript("OnClick", ResetPosition)
 
-	local b2 = CreateFrame("Button", nil, panel, "UIPanelButtonTemplate")
+	local b2 = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
 	b2:SetWidth(150) b2:SetHeight(22)
 	b2:SetPoint("LEFT", b1, "RIGHT", 8, 0)
 	b2:SetText("Zerar dano / streak")
@@ -636,17 +645,18 @@ function BuildOptions()
 		streak, best = 0, 0
 	end)
 
-	local stats = panel:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
+	local stats = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	stats:SetPoint("TOPLEFT", b1, "BOTTOMLEFT", 0, -12)
-	stats:SetJustifyH("LEFT")
+	stats:SetWidth(340) stats:SetJustifyH("LEFT")
 	panel:SetScript("OnUpdate", function()
 		local c = twistStats.count
-		stats:SetText(string.format("Twists: %d   Dano total: %d   Média: %d   Maior: %d   Streak: %d (melhor %d)",
+		stats:SetText(string.format("Twists: %d   Dano total: %d\nMédia: %d   Maior: %d\nStreak: %d (melhor %d)",
 			c, twistStats.total, c > 0 and twistStats.total / c or 0, twistStats.biggest, streak, best))
 	end)
 
-	local foot = panel:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
-	foot:SetPoint("BOTTOMLEFT", 16, 16)
+	local foot = content:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
+	foot:SetPoint("TOPLEFT", stats, "BOTTOMLEFT", 0, -16)
+	foot:SetWidth(340) foot:SetJustifyH("LEFT")
 	foot:SetText("Comandos: /silvio ou /ss  (/silvio config abre este painel)")
 
 	InterfaceOptions_AddCategory(panel)
