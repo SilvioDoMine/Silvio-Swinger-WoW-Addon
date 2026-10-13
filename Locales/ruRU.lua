@@ -46,6 +46,7 @@ SilvioSwingerLocales.ruRU = {
 	RESULT_LATE = "ПОЗДНО",
 	DMG_TOTAL = "УРОН ТВИСТА: %d",
 	DMG_HIT = "удар",
+	DMG_EXTRA = "[%d доп.]",
 
 	-- Chat
 	ON = "вкл",

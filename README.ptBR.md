@@ -113,10 +113,10 @@ stateDiagram-v2
 Tudo que cai junto com o swing em até 0,4s (hit branco, ataques extras e procs de selo) entra num mesmo "pacote". Se dois selos procaram juntos, ou se o twist foi feito no tempo certo, o total aparece no topo da tela:
 
 ```
-DANO DO TWIST: 3770  =  hit 1320 (1) + Windfury Attack 600 (1) + SoC 1380 (2) + SoB 470 (1)
+DANO DO TWIST: 5065 = hit 2233 (2) + SoC 975 (1) + SoB 1857 (3) [1 Extra]
 ```
 
-O número entre parênteses é quantos golpes ou procs de cada um caíram. Ataques extras (Reckoning, Windfury Totem, Hand of Justice...) aparecem separados, com o nome que o seu cliente dá a eles. Assim fica fácil ver quando algo está dessincronizado: se o `SoB` não aparece, a troca de selo chegou depois do swing. `SoB (2)` com um hit só é normal: o proc do Seal of Command também pode acionar o Seal of Blood, então um bom twist muitas vezes rende um SoB a mais. Use `/silvio debug` para ver cada evento e como ele foi contado.
+O número entre parênteses é quantos golpes ou procs de cada parte caíram. Ataques extras de qualquer fonte (Reckoning, Windfury Totem, Hand of Justice...) contam como hit, os procs de selo que eles causam entram em cada selo, e a quantidade de ataques extras aparece no fim, como `[1 Extra]`. Assim fica fácil ver quanto o ataque extra rendeu e perceber quando algo está dessincronizado: se o `SoB` não aparece, a troca de selo chegou depois do swing. Um selo com mais procs do que hits é normal: o proc do Seal of Command também pode acionar o Seal of Blood. Use `/silvio debug` para ver cada evento, de onde veio cada ataque extra e como ele foi contado.
 
 O dano que o Seal of Blood causa em você mesmo é ignorado.
 

@@ -112,10 +112,10 @@ stateDiagram-v2
 Todo lo que cae junto con el golpe en 0,4s (golpe blanco, ataques extra y activaciones de sello) entra en un mismo "paquete". Si dos sellos se activaron juntos, o si el twist estuvo bien sincronizado, el total aparece arriba en la pantalla:
 
 ```
-DAÑO DEL TWIST: 3770  =  golpe 1320 (1) + Windfury Attack 600 (1) + SoC 1380 (2) + SoB 470 (1)
+DAÑO DEL TWIST: 5065 = golpe 2233 (2) + SoC 975 (1) + SoB 1857 (3) [1 Extra]
 ```
 
-El número entre paréntesis es cuántos golpes o activaciones de cada uno cayeron. Los ataques extra (Represalia, Tótem Viento Furioso, Mano de justicia...) aparecen por separado, con el nombre que les da tu cliente. Así es fácil ver cuándo algo está desincronizado: si falta `SoB`, el cambio de sello llegó después del golpe. `SoB (2)` con un solo golpe es normal: la activación del Sello de orden también puede activar el Sello de sangre, así que un buen twist a menudo da un SoB extra. Usa `/silvio debug` para ver cada evento y cómo se contó.
+El número entre paréntesis es cuántos golpes o activaciones de cada parte cayeron. Los ataques extra de cualquier fuente (Represalia, Tótem Viento Furioso, Mano de justicia...) cuentan como golpes, las activaciones de sello que provocan se suman a cada sello, y la cantidad de ataques extra aparece al final, como `[1 Extra]`. Así es fácil ver cuánto aportó el ataque extra y notar cuándo algo está desincronizado: si falta `SoB`, el cambio de sello llegó después del golpe. Un sello con más activaciones que golpes es normal: la activación del Sello de orden también puede activar el Sello de sangre. Usa `/silvio debug` para ver cada evento, de dónde vino cada ataque extra y cómo se contó.
 
 Se ignora el daño que el Sello de sangre te hace a ti mismo.
 

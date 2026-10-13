@@ -112,10 +112,10 @@ stateDiagram-v2
 Tout ce qui tombe avec le coup en moins de 0,4s (coup blanc, attaques supplémentaires et déclenchements de sceau) va dans un même « paquet ». Si deux sceaux se sont déclenchés ensemble, ou si le twist était bien synchronisé, le total s'affiche en haut de l'écran :
 
 ```
-DÉGÂTS DU TWIST : 3770  =  coup 1320 (1) + Windfury Attack 600 (1) + SoC 1380 (2) + SoB 470 (1)
+DÉGÂTS DU TWIST : 5065 = coup 2233 (2) + SoC 975 (1) + SoB 1857 (3) [1 supp.]
 ```
 
-Le nombre entre parenthèses indique combien de coups ou de déclenchements de chacun sont tombés. Les attaques supplémentaires (Rétribution, Totem Furie-des-vents, Main de justice...) apparaissent à part, avec le nom que leur donne votre client. Il est ainsi facile de voir quand quelque chose est désynchronisé : si `SoB` manque, le changement de sceau est arrivé après le coup. `SoB (2)` avec un seul coup est normal : le déclenchement du Sceau d'autorité peut aussi déclencher le Sceau de sang, donc un bon twist donne souvent un SoB de plus. Utilisez `/silvio debug` pour voir chaque événement et comment il a été compté.
+Le nombre entre parenthèses indique combien de coups ou de déclenchements de chaque partie sont tombés. Les attaques supplémentaires de toute source (Rétribution, Totem Furie-des-vents, Main de justice...) comptent comme des coups, les déclenchements de sceau qu'elles provoquent s'ajoutent à chaque sceau, et le nombre d'attaques supplémentaires apparaît à la fin, comme `[1 supp.]`. Il est ainsi facile de voir ce qu'a rapporté l'attaque supplémentaire et de repérer une désynchronisation : si `SoB` manque, le changement de sceau est arrivé après le coup. Un sceau avec plus de déclenchements que de coups est normal : le déclenchement du Sceau d'autorité peut aussi déclencher le Sceau de sang. Utilisez `/silvio debug` pour voir chaque événement, d'où vient chaque attaque supplémentaire et comment elle a été comptée.
 
 Les dégâts que le Sceau de sang vous inflige à vous-même sont ignorés.
 

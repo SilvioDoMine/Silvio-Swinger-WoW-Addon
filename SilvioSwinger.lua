@@ -164,10 +164,19 @@ end
 -- ---------------------------------------------------------------------------
 local SHORT = { COMMAND = "SoC", BLOOD = "SoB", MARTYR = "SoM", RIGHTEOUS = "SoR" }
 local SEAL_ORDER = { "COMMAND", "BLOOD", "MARTYR", "RIGHTEOUS" }
--- pacote atual: { start, white = {dmg, n}, extras = {nome = {dmg, n}}, extraOrder = {nomes},
---                 seals = {key = {dmg, n}}, twist }
+-- pacote atual: { start, seen, white = {dmg, n, extra}, seals = {key = {dmg, n}}, twist }
+--   start: timestamp do combat log do primeiro evento (hora real no servidor)
+--   seen:  GetTime() do último evento que chegou (hora no cliente)
+--   white.extra: quantos dos golpes brancos foram ataques extras
 local hit
 local twistStats = { count = 0, total = 0, biggest = 0 }
+
+-- O servidor manda os eventos em lotes (spell batching): coisas que aconteceram juntas
+-- podem chegar no cliente com mais de 0.4s de diferença. Por isso o pacote é agrupado
+-- pelo timestamp do combat log, e só fecha depois de um tempo sem chegar nada.
+local BUNDLE_SPAN = 0.4    -- eventos até 0.4s depois do primeiro (hora do servidor) são do mesmo swing
+local BUNDLE_IDLE = 1.0    -- fecha o pacote 1s (hora do cliente) depois do último evento
+local curTs = 0            -- timestamp do evento do combat log sendo tratado agora
 
 -- Ataques extras anunciados no combat log (SPELL_EXTRA_ATTACKS: Reckoning, Windfury Totem,
 -- Hand of Justice...) que ainda não caíram: { name, left, at }. O golpe extra vem logo depois.
@@ -179,25 +188,10 @@ local function SealKeyByName(name)
 	end
 end
 
-local function HitBucket()
-	if not hit then
-		hit = { start = GetTime(), white = { dmg = 0, n = 0 }, extras = {}, extraOrder = {}, seals = {} }
-	end
-	return hit
-end
-
 -- Soma dano e conta um golpe numa entrada { dmg, n }
 local function Add(entry, dmg)
 	entry.dmg = entry.dmg + (dmg or 0)
 	entry.n = entry.n + 1
-end
-
-local function AddExtra(b, name, dmg)
-	if not b.extras[name] then
-		b.extras[name] = { dmg = 0, n = 0 }
-		table.insert(b.extraOrder, name)
-	end
-	Add(b.extras[name], dmg)
 end
 
 -- Consome um ataque extra anunciado; anúncios com mais de 1s sem golpe são descartados
@@ -246,7 +240,7 @@ end
 
 local function FlushHit(force)
 	if not hit then return end
-	if not force and GetTime() - hit.start < 0.4 then return end
+	if not force and GetTime() - hit.seen < BUNDLE_IDLE then return end
 	local b = hit
 	hit = nil
 
@@ -261,14 +255,11 @@ local function FlushHit(force)
 		return
 	end
 
-	local extraDmg = 0
-	for _, e in pairs(b.extras) do extraDmg = extraDmg + e.dmg end
-
-	local total = b.white.dmg + extraDmg + sealDmg
+	local total = b.white.dmg + sealDmg
 	if total <= 0 then return end
 	if debugOn then
-		DebugLine(string.format("bundle = twist, total %d (%d seal(s), timed twist: %s)",
-			total, nSeals, b.twist and "yes" or "no"))
+		DebugLine(string.format("bundle = twist, total %d (%d hit(s) incl. %d extra, %d seal(s), timed twist: %s)",
+			total, b.white.n, b.white.extra, nSeals, b.twist and "yes" or "no"))
 	end
 	twistStats.count = twistStats.count + 1
 	twistStats.total = twistStats.total + total
@@ -277,20 +268,32 @@ local function FlushHit(force)
 	if db.dmgMsg then
 		local text = string.format(L.DMG_TOTAL, total)
 		if db.breakdown then
-			-- "hit 1320 (1) + Windfury Attack 600 (1) + SoC 1380 (2) + SoB 470 (1)":
-			-- o número entre parênteses é quantos golpes/procs de cada um caíram
+			-- "hit 2233 (2) + SoC 975 (1) + SoB 1857 (3) [1 Extra]": entre parênteses, quantos
+			-- golpes/procs de cada um caíram. Ataque extra (de qualquer fonte) conta como hit,
+			-- os procs de selo que ele causa já entram em cada selo, e o total de extras vai no fim.
 			local parts = {}
 			if b.white.n > 0 then table.insert(parts, Part(L.DMG_HIT, b.white)) end
-			for _, name in ipairs(b.extraOrder) do
-				table.insert(parts, Part(name, b.extras[name]))
-			end
 			for _, k in ipairs(SEAL_ORDER) do
 				if b.seals[k] then table.insert(parts, Part(SHORT[k], b.seals[k])) end
 			end
-			text = text .. "  =  " .. table.concat(parts, " + ")
+			text = text .. " = " .. table.concat(parts, " + ")
+			if b.white.extra > 0 then
+				text = text .. " " .. string.format(L.DMG_EXTRA, b.white.extra)
+			end
 		end
 		UIErrorsFrame:AddMessage(text, 0.25, 0.6, 1.0, 1.0, UIERRORS_HOLD_TIME)
 	end
+end
+
+-- Pacote do evento atual (curTs). Um evento longe demais do início do pacote aberto
+-- é de outro swing: fecha o anterior e abre um novo.
+local function HitBucket()
+	if hit and curTs - hit.start > BUNDLE_SPAN then FlushHit(true) end
+	if not hit then
+		hit = { start = curTs, white = { dmg = 0, n = 0, extra = 0 }, seals = {} }
+	end
+	hit.seen = GetTime()
+	return hit
 end
 
 local function OnSwing()
@@ -640,6 +643,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 			end
 			return
 		end
+		curTs = ts or 0
 		-- Posições depois dos 8 campos base (2.4.3, sem "overkill"):
 		-- SWING_DAMAGE: 9 amount ... 14 critical | SPELL_*: 10 spellName, 12 amount ... 17 critical
 		if subEvent == "SWING_DAMAGE" or subEvent == "SWING_MISSED" then
@@ -650,7 +654,8 @@ f:SetScript("OnEvent", function(self, event, ...)
 			if subEvent == "SWING_DAMAGE" then
 				local b = HitBucket()
 				local dmg = select(9, ...)
-				if extra then AddExtra(b, extra, dmg) else Add(b.white, dmg) end
+				Add(b.white, dmg)
+				if extra then b.white.extra = b.white.extra + 1 end
 				DebugEvent(ts, subEvent, nil, dstName, dmg, select(14, ...), outcome)
 			else
 				DebugEvent(ts, subEvent, nil, dstName, select(9, ...), nil, outcome .. " (missed, not counted)")

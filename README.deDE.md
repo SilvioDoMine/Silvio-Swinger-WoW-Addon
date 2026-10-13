@@ -112,10 +112,10 @@ stateDiagram-v2
 Alles, was innerhalb von 0,4s mit dem Schlag trifft (weißer Treffer, Extraangriffe und Siegel-Procs), landet in einem „Paket“. Wenn zwei Siegel zusammen geproct haben oder der Twist richtig getimt war, erscheint die Summe oben am Bildschirm:
 
 ```
-TWIST-SCHADEN: 3770  =  Treffer 1320 (1) + Windfury Attack 600 (1) + SoC 1380 (2) + SoB 470 (1)
+TWIST-SCHADEN: 5065 = Treffer 2233 (2) + SoC 975 (1) + SoB 1857 (3) [1 Extra]
 ```
 
-Die Zahl in Klammern gibt an, wie viele Treffer oder Procs von jedem gelandet sind. Extraangriffe (Abrechnung, Totem des Windzorns, Hand der Gerechtigkeit...) werden einzeln aufgeführt, mit dem Namen, den dein Client ihnen gibt. So siehst du leicht, wenn etwas nicht synchron ist: Fehlt `SoB`, kam der Siegelwechsel erst nach dem Schlag an. `SoB (2)` bei nur einem Treffer ist normal: Der Proc des Siegels des Befehls kann auch das Siegel des Blutes auslösen, daher bringt ein guter Twist oft ein zusätzliches SoB. Mit `/silvio debug` siehst du jedes Ereignis und wie es gezählt wurde.
+Die Zahl in Klammern gibt an, wie viele Treffer oder Procs jedes Teils gelandet sind. Extraangriffe aus jeder Quelle (Abrechnung, Totem des Windzorns, Hand der Gerechtigkeit...) zählen als Treffer, die Siegel-Procs, die sie auslösen, werden dem jeweiligen Siegel zugerechnet, und die Anzahl der Extraangriffe steht am Ende, etwa `[1 Extra]`. So siehst du leicht, was der Extraangriff gebracht hat, und erkennst, wenn etwas nicht synchron ist: Fehlt `SoB`, kam der Siegelwechsel erst nach dem Schlag an. Ein Siegel mit mehr Procs als Treffern ist normal: Der Proc des Siegels des Befehls kann auch das Siegel des Blutes auslösen. Mit `/silvio debug` siehst du jedes Ereignis, woher jeder Extraangriff kam und wie er gezählt wurde.
 
 Schaden, den das Siegel des Blutes dir selbst zufügt, wird ignoriert.
 

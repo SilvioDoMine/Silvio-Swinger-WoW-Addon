@@ -45,6 +45,7 @@ SilvioSwingerLocales.csCZ = {
 	RESULT_LATE = "POZDĚ",
 	DMG_TOTAL = "TWIST POŠKOZENÍ: %d",
 	DMG_HIT = "hit",
+	DMG_EXTRA = "[%d navíc]",
 
 	-- Chat
 	ON = "zapnuto",

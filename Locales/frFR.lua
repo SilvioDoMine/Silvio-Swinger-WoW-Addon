@@ -44,6 +44,7 @@ SilvioSwingerLocales.frFR = {
 	RESULT_LATE = "EN RETARD",
 	DMG_TOTAL = "DÉGÂTS DU TWIST : %d",
 	DMG_HIT = "coup",
+	DMG_EXTRA = "[%d supp.]",
 
 	-- Chat
 	ON = "activé",

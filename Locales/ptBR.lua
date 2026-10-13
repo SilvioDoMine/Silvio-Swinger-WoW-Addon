@@ -44,6 +44,7 @@ SilvioSwingerLocales.ptBR = {
 	RESULT_LATE = "ATRASADO",
 	DMG_TOTAL = "DANO DO TWIST: %d",
 	DMG_HIT = "hit",
+	DMG_EXTRA = "[%d Extra]",
 
 	-- Chat
 	ON = "ligado",

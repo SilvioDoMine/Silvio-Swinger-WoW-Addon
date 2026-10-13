@@ -12,7 +12,7 @@ SilvioSwingerLocales.enUS = {
 	OPT_LOCKED = "Lock position (not even Shift moves it)",
 	OPT_JUDGE = "Suggest Judgement after the twist",
 	OPT_SOUND = "Sound when the twist window opens",
-	OPT_DMGMSG = "Show \"TWIST DAMAGE\" at the top of the screen",
+	OPT_DMGMSG = "Show \"TWIST DMG\" at the top of the screen",
 	OPT_BREAKDOWN = "Break down the damage (hit + SoC + SoB)",
 	HEADER_TUNING = "Tuning",
 	SL_WINDOW = "Twist window",
@@ -44,8 +44,9 @@ SilvioSwingerLocales.enUS = {
 	RESULT_PERFECT = "PERFECT",
 	RESULT_EARLY = "TOO EARLY",
 	RESULT_LATE = "LATE",
-	DMG_TOTAL = "TWIST DAMAGE: %d",
+	DMG_TOTAL = "TWIST DMG: %d",
 	DMG_HIT = "hit",
+	DMG_EXTRA = "[%d Extra]",
 
 	-- Chat
 	ON = "on",

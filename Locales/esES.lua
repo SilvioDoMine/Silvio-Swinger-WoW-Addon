@@ -45,6 +45,7 @@ SilvioSwingerLocales.esES = {
 	RESULT_LATE = "TARDE",
 	DMG_TOTAL = "DAÑO DEL TWIST: %d",
 	DMG_HIT = "golpe",
+	DMG_EXTRA = "[%d Extra]",
 
 	-- Chat
 	ON = "activado",

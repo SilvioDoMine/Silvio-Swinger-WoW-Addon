@@ -112,10 +112,10 @@ stateDiagram-v2
 Everything that lands with the swing within 0.4s (white hit, extra attacks and seal procs) goes into the same "bundle". If two seals procced together, or if the twist was timed correctly, the total shows up at the top of the screen:
 
 ```
-TWIST DAMAGE: 3770  =  hit 1320 (1) + Windfury Attack 600 (1) + SoC 1380 (2) + SoB 470 (1)
+TWIST DMG: 5065 = hit 2233 (2) + SoC 975 (1) + SoB 1857 (3) [1 Extra]
 ```
 
-The number in parentheses is how many hits or procs of each one landed. Extra attacks (Reckoning, Windfury Totem, Hand of Justice...) are listed on their own, with the name your client gives them. That makes it easy to spot when something is out of sync: if `SoB` is missing, the seal swap landed after the swing. `SoB (2)` with a single hit is normal: the Seal of Command proc can trigger Seal of Blood too, so a good twist often lands one extra SoB. Use `/silvio debug` to see each event and how it was counted.
+The number in parentheses is how many hits or procs of each part landed. Extra attacks from any source (Reckoning, Windfury Totem, Hand of Justice...) count as hits, the seal procs they cause are added to each seal, and the number of extra attacks shows up at the end, like `[1 Extra]`. That makes it easy to see what the extra attack was worth and to spot when something is out of sync: if `SoB` is missing, the seal swap landed after the swing. A seal with more procs than hits is normal: the Seal of Command proc can trigger Seal of Blood too. Use `/silvio debug` to see each event, where each extra attack came from and how it was counted.
 
 Damage that Seal of Blood deals to yourself is ignored.
 
@@ -134,7 +134,7 @@ Damage that Seal of Blood deals to yourself is ignored.
 | `/silvio scale <n>` | Window scale |
 | `/silvio judge` | Toggles the Judgement suggestion |
 | `/silvio sound` | Toggles the sound when the window opens (plays a preview when turned on) |
-| `/silvio msg` | Toggles `TWIST DAMAGE` at the top |
+| `/silvio msg` | Toggles `TWIST DMG` at the top |
 | `/silvio detail` | Toggles the damage breakdown |
 | `/silvio dmg` | Shows damage statistics |
 | `/silvio dmgreset` | Resets damage statistics |
@@ -155,7 +155,7 @@ Saved in `SilvioSwingerDB`.
 | `judge` | on | Suggest Judgement after the twist |
 | `sound` | on | Minimap ping when the twist window opens, once per swing |
 | `lowMana` | 10% | Low mana warning threshold |
-| `dmgMsg` | on | `TWIST DAMAGE` message |
+| `dmgMsg` | on | `TWIST DMG` message |
 | `breakdown` | on | Break down hit + seals in the message |
 | `scale` | 1.0 | Window scale |
 | `locale` | `auto` | Interface language (`auto` = client language) |

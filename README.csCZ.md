@@ -113,10 +113,10 @@ stateDiagram-v2
 Všechno, co dopadne se swingem do 0,4s (bílý hit, extra útoky a procy pečetí), jde do jednoho „balíčku“. Pokud procly dvě pečeti zároveň nebo byl twist správně načasovaný, součet se zobrazí nahoře na obrazovce:
 
 ```
-TWIST POŠKOZENÍ: 3770  =  hit 1320 (1) + Windfury Attack 600 (1) + SoC 1380 (2) + SoB 470 (1)
+TWIST POŠKOZENÍ: 5065 = hit 2233 (2) + SoC 975 (1) + SoB 1857 (3) [1 navíc]
 ```
 
-Číslo v závorce říká, kolik zásahů nebo proců každého z nich dopadlo. Extra útoky (Reckoning, Windfury Totem, Hand of Justice...) se ukazují zvlášť, pod jménem, které jim dává tvůj klient. Snadno tak poznáš, když něco nesedí: pokud chybí `SoB`, výměna pečeti dorazila až po swingu. `SoB (2)` při jediném hitu je normální: proc Seal of Command může spustit i Seal of Blood, takže dobrý twist často přinese jeden SoB navíc. Pomocí `/silvio debug` uvidíš každou událost a jak byla započítána.
+Číslo v závorce říká, kolik zásahů nebo proců každé části dopadlo. Extra útoky z jakéhokoli zdroje (Reckoning, Windfury Totem, Hand of Justice...) se počítají jako hity, procy pečetí, které způsobí, se přičtou ke každé pečeti, a počet extra útoků se ukáže na konci, třeba `[1 navíc]`. Snadno tak uvidíš, kolik extra útok přinesl, a poznáš, když něco nesedí: pokud chybí `SoB`, výměna pečeti dorazila až po swingu. Pečeť s více procy než hity je normální: proc Seal of Command může spustit i Seal of Blood. Pomocí `/silvio debug` uvidíš každou událost, odkud přišel každý extra útok a jak byl započítán.
 
 Poškození, které Seal of Blood způsobí tobě, se ignoruje.
 
