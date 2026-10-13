@@ -81,6 +81,26 @@ El sello de twist se elige del libro de hechizos en este orden: Sello de sangre,
 
 Los cambios de celeridad (Ansia de sangre, Tambores, Poción de celeridad) reescalan el golpe en curso. Los hechizos con tiempo de lanzamiento (Exorcismo, Destello de Luz) reinician el temporizador. Los ataques extra (Viento furioso, Mano de justicia) no.
 
+## Macro recomendada
+
+En TBC, Sentencia **no usa el tiempo de reutilización global**, y los sellos sí. Así que una sola tecla puede juzgar el sello del twist y volver a poner Sello de orden, que es justo el paso **Sentencia + SoC** que recomienda la ventana:
+
+```
+#showtooltip Sello de orden
+/cast [harm,nodead] Sentencia
+/cast Sello de orden
+```
+
+- Sentencia sale al instante y consume el sello del twist; Sello de orden va después, usando el GCD.
+- `[harm,nodead]` solo lanza Sentencia cuando tienes un objetivo hostil vivo. Sin objetivo, o con uno amistoso o muerto, se salta Sentencia sin error y pone Sello de orden igualmente, algo útil antes del pull. Para saltar los dos, pon `[harm,nodead]` también en la segunda línea.
+- Si Sentencia está en reutilización, aparece el error "no está listo", pero la macro sigue y lanza Sello de orden igualmente.
+- En un cliente de otro idioma, usa los nombres de ese idioma (en inglés: `Judgement` y `Seal of Command`).
+- Si sueles perder el ataque automático, añade `/startattack [harm,nodead]` como primera línea.
+
+Dos cosas que una macro **no** puede hacer en 2.4.3: lanzar dos hechizos que usan el GCD con una sola pulsación (el segundo falla) y hacer todo el twist con una tecla. El sello del twist tiene que entrar en los últimos ~0,4s antes del golpe y Sello de orden solo después del golpe. Eso es timing, no macro, y para eso está la ventana. Deja el sello del twist (Sello de sangre o Sello del mártir) en una tecla normal.
+
+El ciclo queda así: Sello de orden activo, Golpe de cruzado si la ventana dice que cabe, el sello del twist en **TWIST!** y la macro después del golpe.
+
 ## Racha
 
 La racha cuenta cuántos **twists bien sincronizados** has hecho seguidos.

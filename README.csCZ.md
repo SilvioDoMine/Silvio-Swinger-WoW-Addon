@@ -82,6 +82,26 @@ Twist pečeť se vybírá ze spellbooku v tomto pořadí: Seal of Blood, Seal of
 
 Změny haste (Bloodlust, Drums, Haste Potion) přepočítají probíhající swing. Kouzla s časem sesílání (Exorcism, Flash of Light) timer restartují. Extra útoky (Windfury, Hand of Justice) ne.
 
+## Doporučené makro
+
+V TBC Judgement **nepoužívá globální cooldown**, ale pečeti ano. Jednou klávesou tak můžeš judgovat twist pečeť a hned nahodit zpátky Seal of Command, což je přesně krok **Judgement + SoC**, který okno doporučuje:
+
+```
+#showtooltip Seal of Command
+/cast [harm,nodead] Judgement
+/cast Seal of Command
+```
+
+- Judgement se sešle hned a spotřebuje twist pečeť, Seal of Command následuje na GCD.
+- `[harm,nodead]` sešle Judgement jen tehdy, když máš živý nepřátelský cíl. Bez cíle, nebo s přátelským či mrtvým cílem, Judgement bez chyby přeskočí a Seal of Command i tak nahodí, což se hodí před pullem. Pokud chceš přeskočit obojí, dej `[harm,nodead]` i na druhý řádek.
+- Když má Judgement cooldown, objeví se chyba „není připraveno“, ale makro pokračuje a Seal of Command sešle i tak.
+- Český klient 2.4.3 neexistuje, takže názvy jsou anglicky. V jiném klientu použij názvy v jeho jazyce.
+- Pokud ti vypadává auto attack, přidej na první řádek `/startattack [harm,nodead]`.
+
+Dvě věci, které makro v 2.4.3 **neumí**: seslat dvě kouzla s GCD jedním stiskem (druhé selže) a udělat celý twist jednou klávesou. Twist pečeť musí padnout v posledních ~0,4s před swingem a Seal of Command až po zásahu. To je otázka načasování, ne makra, a na to je okno. Twist pečeť (Seal of Blood nebo Seal of the Martyr) měj na obyčejné klávese.
+
+Cyklus pak je: aktivní Seal of Command, Crusader Strike, pokud okno řekne, že se vejde, twist pečeť při **TWIST!** a makro po zásahu.
+
 ## Série
 
 Série počítá, kolik **správně načasovaných twistů** jsi udělal za sebou.

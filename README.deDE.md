@@ -81,6 +81,26 @@ Das Twist-Siegel wird in dieser Reihenfolge aus dem Zauberbuch gewählt: Siegel 
 
 Tempoänderungen (Kampfrausch, Trommeln, Hasttrank) skalieren den laufenden Schlag neu. Zauber mit Zauberzeit (Exorzismus, Lichtblitz) starten den Timer neu. Extraangriffe (Windzorn, Hand der Gerechtigkeit) nicht.
 
+## Empfohlenes Makro
+
+Richturteil liegt in TBC **nicht auf der globalen Abklingzeit**, Siegel schon. Eine Taste kann also das Twist-Siegel richten und gleich wieder Siegel des Befehls aufsetzen, genau der Schritt **Richturteil + SoC**, den das Fenster empfiehlt:
+
+```
+#showtooltip Siegel des Befehls
+/cast [harm,nodead] Richturteil
+/cast Siegel des Befehls
+```
+
+- Richturteil wird sofort gewirkt und verbraucht das Twist-Siegel, Siegel des Befehls folgt auf dem GCD.
+- `[harm,nodead]` wirkt Richturteil nur, wenn du ein lebendes feindliches Ziel hast. Ohne Ziel, oder mit einem freundlichen oder toten Ziel, wird Richturteil ohne Fehlermeldung übersprungen und Siegel des Befehls trotzdem aufgesetzt, praktisch vor dem Pull. Um beides zu überspringen, setze `[harm,nodead]` auch in die zweite Zeile.
+- Ist Richturteil noch nicht bereit, kommt die Fehlermeldung „noch nicht bereit“, aber das Makro läuft weiter und wirkt trotzdem Siegel des Befehls.
+- Auf einem Client in anderer Sprache nimm die Zaubernamen dieser Sprache (englisch: `Judgement` und `Seal of Command`).
+- Wenn dir der automatische Angriff verloren geht, setze `/startattack [harm,nodead]` in die erste Zeile.
+
+Zwei Dinge kann ein Makro in 2.4.3 **nicht**: zwei Zauber mit GCD mit einem Tastendruck wirken (der zweite schlägt fehl) und den ganzen Twist auf eine Taste legen. Das Twist-Siegel muss in den letzten ~0,4s vor dem Schlag kommen und Siegel des Befehls erst nach dem Treffer. Das ist Timing, kein Makro, und dafür ist das Fenster da. Leg das Twist-Siegel (Siegel des Blutes oder Siegel des Märtyrers) auf eine normale Taste.
+
+Der Ablauf ist dann: Siegel des Befehls aktiv, Kreuzfahrerstoß, wenn das Fenster sagt, dass er passt, das Twist-Siegel bei **TWIST!** und das Makro nach dem Treffer.
+
 ## Serie
 
 Die Serie zählt, wie viele **richtig getimte Twists** du hintereinander geschafft hast.

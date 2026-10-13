@@ -81,6 +81,26 @@ The twist seal is picked from the spellbook in this order: Seal of Blood, Seal o
 
 Haste changes (Bloodlust, Drums, Haste Potion) rescale the swing in progress. Spells with a cast time (Exorcism, Flash of Light) restart the timer. Extra attacks (Windfury, Hand of Justice) don't.
 
+## Recommended macro
+
+Judgement is **off the global cooldown** in TBC, and seals are on it. So one key can judge the twist seal and put Seal of Command back up, which is exactly the **Judgement + SoC** step the window recommends:
+
+```
+#showtooltip Seal of Command
+/cast [harm,nodead] Judgement
+/cast Seal of Command
+```
+
+- Judgement fires at once, using up the twist seal, and Seal of Command follows on the GCD.
+- `[harm,nodead]` only casts Judgement when you have a living hostile target. With no target, or a friendly or dead one, it skips Judgement without the error and still puts Seal of Command up, which is handy before the pull. To skip both, put `[harm,nodead]` on the second line too.
+- If Judgement is on cooldown you get a "not ready" error, but the macro goes on and casts Seal of Command anyway.
+- On a non-English client, use the spell names of your client language.
+- If you tend to lose auto attack, add `/startattack [harm,nodead]` as the first line.
+
+Two things a macro **can't** do in 2.4.3: cast two spells that use the GCD with one press (the second fails), and do the whole twist on one key. The twist seal has to land in the last ~0.4s before the swing and Seal of Command only after the hit, which is timing, not a macro. That's what the window is for. Keep the twist seal (Seal of Blood or Seal of the Martyr) on a plain key.
+
+The cycle then is: Seal of Command up, Crusader Strike if the window says it fits, the twist seal at **TWIST!**, and the macro after the hit.
+
 ## Streak
 
 The streak counts how many **correctly timed twists** you made in a row.

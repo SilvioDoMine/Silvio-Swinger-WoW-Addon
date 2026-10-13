@@ -82,6 +82,26 @@ O selo de twist é escolhido pelo grimório, nesta ordem: Seal of Blood, Seal of
 
 Mudanças de haste (Bloodlust, Drums, Haste Potion) reescalam o swing em andamento. Magias com tempo de cast (Exorcism, Flash of Light) reiniciam o timer. Ataques extras (Windfury, Hand of Justice) não reiniciam.
 
+## Macro recomendada
+
+No TBC o Julgamento **não usa o GCD**, e os selos usam. Então dá para julgar o selo do twist e já colocar o Seal of Command de volta na mesma tecla, que é exatamente o passo **Julgamento + SoC** que a janela recomenda:
+
+```
+#showtooltip Seal of Command
+/cast [harm,nodead] Judgement
+/cast Seal of Command
+```
+
+- O Julgamento sai na hora, consumindo o selo do twist, e o Seal of Command entra em seguida, usando o GCD.
+- O `[harm,nodead]` só lança o Julgamento quando você tem um alvo hostil vivo. Sem alvo, ou com um alvo aliado ou morto, ele pula o Julgamento sem dar erro e coloca o Seal of Command mesmo assim, o que é útil antes do pull. Para pular os dois, coloque `[harm,nodead]` na segunda linha também.
+- Se o Julgamento estiver em recarga, aparece o erro "não está pronto", mas a macro continua e lança o Seal of Command mesmo assim.
+- Não existe cliente 2.4.3 em português, então os nomes são em inglês. Em outro cliente, use os nomes do idioma dele.
+- Se você costuma perder o auto attack, coloque `/startattack [harm,nodead]` na primeira linha.
+
+Duas coisas que uma macro **não** faz no 2.4.3: lançar dois feitiços que usam o GCD num clique só (o segundo falha) e fazer o twist inteiro numa tecla. O selo do twist precisa sair nos últimos ~0,4s antes do swing, e o Seal of Command só depois do golpe. Isso é timing, não macro, e é para isso que serve a janela. Deixe o selo do twist (Seal of Blood ou Seal of the Martyr) num botão normal.
+
+O ciclo fica assim: Seal of Command ativo, Crusader Strike se a janela disser que dá tempo, o selo do twist no **TWIST!** e a macro depois do golpe.
+
 ## Streak
 
 O streak conta quantos **twists com timing certo** você fez em sequência.

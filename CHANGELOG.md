@@ -25,6 +25,7 @@ The full rules for agents and contributors are in [AGENTS.md](AGENTS.md).
 - Extra attacks from any source (Reckoning, Windfury Totem, Hand of Justice, extra-attack weapons...) are recognized and counted as hits. The seal procs they cause are added to each seal, and the number of extra attacks is shown at the end, e.g. `[2 Extra]`.
 - `/silvio debug`: diagnostic mode that prints every combat log event of the twist to chat, with timing, target, damage, crits and how the addon counted it (including the source of each extra attack), plus whether the bundle became a twist. Turns off on `/reload`.
 - Update notice: the addon swaps its version with other SilvioSwinger users in your guild, party, raid or battleground, and if someone has a newer one, says so once in chat with the link to the latest release.
+- A "Recommended macro" section in every README: one key for Judgement + Seal of Command, since Judgement is off the global cooldown. It skips Judgement when there is no living hostile target.
 
 ### Changed
 

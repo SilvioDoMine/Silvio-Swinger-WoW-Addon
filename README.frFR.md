@@ -81,6 +81,26 @@ Le sceau de twist est choisi dans le grimoire dans cet ordre : Sceau de sang, Sc
 
 Les changements de hâte (Furie sanguinaire, Tambours, Potion de hâte) recalculent le coup en cours. Les sorts avec temps d'incantation (Exorcisme, Éclair lumineux) relancent le minuteur. Les attaques supplémentaires (Furie-des-vents, Main de justice) non.
 
+## Macro recommandée
+
+Dans TBC, Jugement **ne déclenche pas le temps de recharge global**, alors que les sceaux, si. Une seule touche peut donc juger le sceau du twist et remettre aussitôt le Sceau d'autorité, ce qui est exactement l'étape **Jugement + SoC** que recommande la fenêtre :
+
+```
+#showtooltip Sceau d'autorité
+/cast [harm,nodead] Jugement
+/cast Sceau d'autorité
+```
+
+- Jugement part tout de suite et consomme le sceau du twist, puis le Sceau d'autorité suit sur le GCD.
+- `[harm,nodead]` ne lance Jugement que si vous avez une cible hostile vivante. Sans cible, ou avec une cible amicale ou morte, Jugement est ignoré sans erreur et le Sceau d'autorité est quand même posé, pratique avant le pull. Pour ignorer les deux, mettez aussi `[harm,nodead]` sur la deuxième ligne.
+- Si Jugement est en recharge, vous avez l'erreur « pas encore prêt », mais la macro continue et lance quand même le Sceau d'autorité.
+- Sur un client dans une autre langue, utilisez les noms de cette langue (en anglais : `Judgement` et `Seal of Command`).
+- Si vous perdez souvent l'attaque automatique, ajoutez `/startattack [harm,nodead]` en première ligne.
+
+Deux choses qu'une macro **ne peut pas** faire en 2.4.3 : lancer deux sorts qui utilisent le GCD en un seul appui (le second échoue) et faire tout le twist sur une touche. Le sceau du twist doit tomber dans les ~0,4s qui précèdent le coup et le Sceau d'autorité seulement après le coup. C'est une question de timing, pas de macro, et c'est à ça que sert la fenêtre. Gardez le sceau du twist (Sceau de sang ou Sceau du martyr) sur une touche normale.
+
+Le cycle devient : Sceau d'autorité actif, Frappe du croisé si la fenêtre dit qu'elle passe, le sceau du twist au **TWIST !** et la macro après le coup.
+
 ## Série
 
 La série compte combien de **twists bien synchronisés** vous avez enchaînés.
