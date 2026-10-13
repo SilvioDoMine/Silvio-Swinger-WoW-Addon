@@ -10,10 +10,21 @@ While the version is `0.y.z`, the addon is still taking shape: a minor bump (`0.
 
 1. Move the entries under **Unreleased** to a new version section with today's date.
 2. Update `## Version:` in `SilvioSwinger.toc` to the same number.
-3. Add the compare link for the new version at the bottom of this file.
-4. Commit, then tag: `git tag -a vX.Y.Z -m "vX.Y.Z"` and `git push origin main --tags`.
+3. Update the compare links at the bottom of this file.
+4. Commit and push to `main`. The Release workflow creates the `vX.Y.Z` tag and publishes a GitHub Release with this section as notes and `SilvioSwinger-X.Y.Z.zip` attached.
+
+The full rules for agents and contributors are in [AGENTS.md](AGENTS.md).
 
 ## [Unreleased]
+
+### Added
+
+- Every release is published on GitHub Releases with a ready-to-install `SilvioSwinger-X.Y.Z.zip`, whose folder is already named `SilvioSwinger`.
+- `AGENTS.md` with the changelog, versioning and coding rules for contributors and coding agents.
+
+### Changed
+
+- The install instructions in every README now start from the Release zip.
 
 ## [0.3.0] - 2026-10-13
 

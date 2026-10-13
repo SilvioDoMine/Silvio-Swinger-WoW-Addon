@@ -1,0 +1,126 @@
+# Publica uma Release no GitHub a partir do versionamento do projeto.
+#
+# Automático: quando um push na main muda o "## Version:" do SilvioSwinger.toc,
+# cria a tag vX.Y.Z (se não existir), extrai as notas da seção [X.Y.Z] do
+# CHANGELOG.md, monta SilvioSwinger-X.Y.Z.zip e publica a Release.
+#
+# Manual (Actions > Release > Run workflow): informa uma versão que já tem tag
+# para criar a Release dela, por exemplo as versões anteriores a este workflow.
+#
+# Tudo é idempotente: tag ou Release que já existem não são recriadas.
+
+name: Release
+
+on:
+  push:
+    branches: [main]
+    paths: [SilvioSwinger.toc]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Versão sem o v (ex.: 0.3.0). Vazio = versão atual do .toc"
+        required: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Descobrir a versão
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          version="${INPUT_VERSION#v}"
+          if [ -z "$version" ]; then
+            version=$(sed -n 's/^## Version:[[:space:]]*//p' SilvioSwinger.toc | tr -d '\r[:space:]')
+          fi
+          # SemVer 2.0.0 (sem metadados de build, que não fazem sentido numa tag)
+          if ! echo "$version" | grep -Eq '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(-[0-9A-Za-z.-]+)?$'; then
+            echo "::error file=SilvioSwinger.toc::Versão '$version' não segue SemVer (X.Y.Z)"
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "tag=v$version" >> "$GITHUB_OUTPUT"
+          if gh release view "v$version" >/dev/null 2>&1; then
+            echo "Release v$version já existe, nada a fazer."
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "skip=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Extrair as notas do CHANGELOG
+        if: steps.version.outputs.skip == 'false'
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # Tudo entre "## [X.Y.Z]" e o próximo "## [" (ou os links do rodapé)
+          awk -v head="## [$VERSION]" '
+            index($0, head) == 1 { found = 1; next }
+            found && (/^## \[/ || /^\[[^]]+\]: /) { exit }
+            found { print }
+          ' CHANGELOG.md | sed -e '/./,$!d' > notes.md
+          if [ ! -s notes.md ]; then
+            echo "::error file=CHANGELOG.md::Não há seção '## [$VERSION]' com conteúdo no CHANGELOG.md"
+            exit 1
+          fi
+          # Link de comparação com a versão anterior (a primeira versão não tem)
+          compare=$(grep -E "^\[$VERSION\]: " CHANGELOG.md | sed 's/^[^:]*: //')
+          if echo "$compare" | grep -q '/compare/'; then
+            printf '\n**Full changelog:** %s\n' "$compare" >> notes.md
+          fi
+          cat notes.md
+
+      - name: Criar a tag
+        if: steps.version.outputs.skip == 'false'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+        run: |
+          if git rev-parse -q --verify "refs/tags/$TAG" >/dev/null; then
+            echo "Tag $TAG já existe em $(git rev-list -n 1 "$TAG")"
+          elif [ "${{ github.event_name }}" = "push" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" -m "$TAG" "$GITHUB_SHA"
+            git push origin "refs/tags/$TAG"
+          else
+            echo "::error::A tag $TAG não existe. Na execução manual, crie a tag antes ou suba a versão no .toc."
+            exit 1
+          fi
+
+      - name: Montar o zip do addon
+        if: steps.version.outputs.skip == 'false'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          # Conteúdo da tag, sem docs/READMEs (export-ignore no .gitattributes atual).
+          # A pasta dentro do zip precisa se chamar SilvioSwinger para o jogo achar o addon.
+          git archive --worktree-attributes --format=zip --prefix=SilvioSwinger/ \
+            -o "SilvioSwinger-$VERSION.zip" "$TAG"
+          unzip -l "SilvioSwinger-$VERSION.zip"
+
+      - name: Publicar a Release
+        if: steps.version.outputs.skip == 'false'
+        env:
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          flags=""
+          case "$VERSION" in *-*) flags="--prerelease" ;; esac
+          gh release create "$TAG" "SilvioSwinger-$VERSION.zip" \
+            --title "SilvioSwinger $TAG" \
+            --notes-file notes.md \
+            --verify-tag $flags

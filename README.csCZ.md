@@ -26,7 +26,7 @@ sequenceDiagram
 
 ## Instalace
 
-1. Zkopíruj složku `SilvioSwinger` do `World of Warcraft/Interface/AddOns/`.
+1. Stáhni `SilvioSwinger-X.Y.Z.zip` z [posledního vydání](https://github.com/SilvioDoMine/Silvio-Swinger-WoW-Addon/releases/latest) a rozbal ho do `World of Warcraft/Interface/AddOns/`. Složka `SilvioSwinger` už je uvnitř.
 2. Přihlas se za Paladina. U jiných povolání se addon sám skryje.
 3. Okno přesuneš tak, že podržíš **Shift** a táhneš.
 4. Pro češtinu vyber **Čeština** v nabídce **Jazyk** v panelu nebo použij `/silvio lang csCZ`. Český klient 2.4.3 neexistuje, takže výchozí je angličtina.

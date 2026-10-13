@@ -26,7 +26,7 @@ sequenceDiagram
 
 ## Instalação
 
-1. Copie a pasta `SilvioSwinger` para `World of Warcraft/Interface/AddOns/`.
+1. Baixe o `SilvioSwinger-X.Y.Z.zip` da [última release](https://github.com/SilvioDoMine/Silvio-Swinger-WoW-Addon/releases/latest) e extraia em `World of Warcraft/Interface/AddOns/`. Ele já vem com a pasta `SilvioSwinger`.
 2. Entre no jogo com um Paladino. Em outras classes o addon se esconde sozinho.
 3. Para mover a janela, segure **Shift** e arraste.
 4. Para ver o addon em português, escolha **Português (Brasil)** no menu **Idioma** do painel ou use `/silvio lang ptBR`. Não existe cliente 2.4.3 em português, então o padrão é inglês.

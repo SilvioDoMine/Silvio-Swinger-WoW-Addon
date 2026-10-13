@@ -26,7 +26,7 @@ sequenceDiagram
 
 ## Installation
 
-1. Copy the `SilvioSwinger` folder to `World of Warcraft/Interface/AddOns/`.
+1. Download `SilvioSwinger-X.Y.Z.zip` from the [latest release](https://github.com/SilvioDoMine/Silvio-Swinger-WoW-Addon/releases/latest) and extract it into `World of Warcraft/Interface/AddOns/`. It already contains the `SilvioSwinger` folder.
 2. Log in with a Paladin. On other classes the addon hides itself.
 3. To move the window, hold **Shift** and drag.
 

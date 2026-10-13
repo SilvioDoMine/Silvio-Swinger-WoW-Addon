@@ -26,7 +26,7 @@ sequenceDiagram
 
 ## Установка
 
-1. Скопируй папку `SilvioSwinger` в `World of Warcraft/Interface/AddOns/`.
+1. Скачай `SilvioSwinger-X.Y.Z.zip` из [последнего релиза](https://github.com/SilvioDoMine/Silvio-Swinger-WoW-Addon/releases/latest) и распакуй в `World of Warcraft/Interface/AddOns/`. Папка `SilvioSwinger` уже внутри.
 2. Зайди в игру паладином. На других классах аддон сам скрывается.
 3. Чтобы передвинуть окно, зажми **Shift** и перетащи.
 
