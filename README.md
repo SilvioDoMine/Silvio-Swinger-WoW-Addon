@@ -30,6 +30,8 @@ sequenceDiagram
 2. Log in with a Paladin. On other classes the addon hides itself.
 3. To move the window, hold **Shift** and drag.
 
+**Updates:** the game can't reach the internet, so the addon asks other players instead. It swaps its version, silently, with whoever has SilvioSwinger in your guild, party, raid or battleground. If someone has a newer version, a chat message shows up once with the version and the link to the latest release. Nobody else in the game sees these messages.
+
 ## The window
 
 ```

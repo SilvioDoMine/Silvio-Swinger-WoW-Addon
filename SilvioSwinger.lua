@@ -696,6 +696,89 @@ local function Print(s)
 end
 
 -- ---------------------------------------------------------------------------
+-- Aviso de versão nova. O cliente 2.4.3 não acessa a internet, então quem tem o
+-- addon troca a versão por mensagem de addon (guilda, grupo, raide, BG). Se alguém
+-- tiver uma versão mais nova que a sua, avisa uma vez no chat com o link do Release.
+-- ---------------------------------------------------------------------------
+local RELEASES_URL = "https://github.com/SilvioDoMine/Silvio-Swinger-WoW-Addon/releases/latest"
+local COMM_PREFIX = "SilvioSwinger"
+local COMM_THROTTLE = 60  -- no máximo uma mensagem por canal a cada 60s
+local newestSeen          -- maior versão já avisada nesta sessão
+local lastSent = {}       -- canal -> GetTime() do último envio
+local announceAt          -- primeiro anúncio alguns segundos depois do login
+
+-- "1.2.3" ou "1.2.3-beta.1" -> major, minor, patch, pré-release (nil na versão final)
+local function ParseVersion(v)
+	local a, b, c, rest = string.match(v or "", "^(%d+)%.(%d+)%.(%d+)(.*)$")
+	if not a then return end
+	return tonumber(a), tonumber(b), tonumber(c), string.match(rest, "^%-([^+]+)")
+end
+
+-- true se a versão a for mais nova que b (SemVer; pré-releases comparadas como texto)
+local function IsNewer(a, b)
+	local a1, a2, a3, apre = ParseVersion(a)
+	local b1, b2, b3, bpre = ParseVersion(b)
+	if not a1 or not b1 then return false end
+	if a1 ~= b1 then return a1 > b1 end
+	if a2 ~= b2 then return a2 > b2 end
+	if a3 ~= b3 then return a3 > b3 end
+	if apre and bpre then return apre > bpre end
+	return bpre ~= nil and apre == nil
+end
+
+local function SendVersion(channel)
+	if not ParseVersion(VERSION) then return end
+	local now = GetTime()
+	if lastSent[channel] and now - lastSent[channel] < COMM_THROTTLE then return end
+	lastSent[channel] = now
+	SendAddonMessage(COMM_PREFIX, "V:" .. VERSION, channel)
+end
+
+local function AnnounceVersion()
+	if IsInGuild() then SendVersion("GUILD") end
+	local _, instanceType = IsInInstance()
+	if instanceType == "pvp" then SendVersion("BATTLEGROUND")
+	elseif GetNumRaidMembers() > 0 then SendVersion("RAID")
+	elseif GetNumPartyMembers() > 0 then SendVersion("PARTY") end
+end
+
+local vc = CreateFrame("Frame")
+vc:RegisterEvent("PLAYER_LOGIN")
+vc:RegisterEvent("CHAT_MSG_ADDON")
+vc:RegisterEvent("PARTY_MEMBERS_CHANGED")
+vc:RegisterEvent("RAID_ROSTER_UPDATE")
+vc:SetScript("OnEvent", function(self, event, prefix, msg, channel, sender)
+	if event == "PLAYER_LOGIN" then
+		-- a guilda ainda não está pronta no login
+		announceAt = GetTime() + 10
+	elseif not db then
+		return  -- não é paladino: o addon está desligado
+	elseif event == "CHAT_MSG_ADDON" then
+		if prefix ~= COMM_PREFIX or sender == UnitName("player") then return end
+		local v = string.match(msg or "", "^V:(.+)$")
+		if not v then return end
+		if IsNewer(v, VERSION) then
+			if not newestSeen or IsNewer(v, newestSeen) then
+				newestSeen = v
+				Print(string.format(L.UPDATE_AVAILABLE, v, VERSION, RELEASES_URL))
+			end
+		elseif IsNewer(VERSION, v) then
+			-- quem mandou está desatualizado: responde no mesmo canal para ele ficar sabendo
+			SendVersion(channel)
+		end
+	elseif not announceAt then
+		AnnounceVersion()  -- entrou num grupo ou raide
+	end
+end)
+vc:SetScript("OnUpdate", function(self)
+	if announceAt and GetTime() >= announceAt then
+		announceAt = nil
+		self:Hide()  -- frame escondido continua recebendo eventos, só para o OnUpdate
+		if db then AnnounceVersion() end
+	end
+end)
+
+-- ---------------------------------------------------------------------------
 -- Painel em Interface Options (ESC > Interface > AddOns > SilvioSwinger)
 -- ---------------------------------------------------------------------------
 local optionsPanel

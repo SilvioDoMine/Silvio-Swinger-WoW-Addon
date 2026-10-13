@@ -30,6 +30,8 @@ sequenceDiagram
 2. Logge dich mit einem Paladin ein. Bei anderen Klassen blendet sich das Addon selbst aus.
 3. Um das Fenster zu verschieben, halte **Shift** gedrückt und ziehe.
 
+**Updates:** Das Spiel hat keinen Internetzugang, also fragt das Addon andere Spieler. Es tauscht still seine Version mit allen aus, die SilvioSwinger in deiner Gilde, Gruppe, deinem Schlachtzug oder Schlachtfeld haben. Hat jemand eine neuere Version, erscheint einmal eine Chatnachricht mit der Version und dem Link zum neuesten Release. Niemand sonst im Spiel sieht diese Nachrichten.
+
 ## Das Fenster
 
 ```

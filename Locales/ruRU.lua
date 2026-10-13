@@ -69,4 +69,5 @@ SilvioSwingerLocales.ruRU = {
 	CHAT_LANG = "язык: %s",
 	CHAT_LANG_UNKNOWN = "неизвестный язык «%s». Варианты: %s",
 	CHAT_DEBUG = "отладка: %s (события журнала боя выводятся в чат до /reload)",
+	UPDATE_AVAILABLE = "доступна версия %s (у тебя %s). Скачать: %s",
 }

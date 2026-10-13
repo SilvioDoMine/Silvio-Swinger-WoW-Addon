@@ -67,4 +67,5 @@ SilvioSwingerLocales.ptBR = {
 	CHAT_LANG = "idioma: %s",
 	CHAT_LANG_UNKNOWN = "idioma desconhecido \"%s\". Opções: %s",
 	CHAT_DEBUG = "debug: %s (eventos do combat log vão para o chat até o /reload)",
+	UPDATE_AVAILABLE = "versão %s disponível (você tem a %s). Baixe em: %s",
 }

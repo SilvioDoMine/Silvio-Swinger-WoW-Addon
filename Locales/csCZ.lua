@@ -68,4 +68,5 @@ SilvioSwingerLocales.csCZ = {
 	CHAT_LANG = "jazyk: %s",
 	CHAT_LANG_UNKNOWN = "neznámý jazyk \"%s\". Možnosti: %s",
 	CHAT_DEBUG = "debug: %s (události combat logu jdou do chatu až do /reload)",
+	UPDATE_AVAILABLE = "je dostupná verze %s (máš %s). Stáhni ji: %s",
 }

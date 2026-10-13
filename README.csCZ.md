@@ -31,6 +31,8 @@ sequenceDiagram
 3. Okno přesuneš tak, že podržíš **Shift** a táhneš.
 4. Pro češtinu vyber **Čeština** v nabídce **Jazyk** v panelu nebo použij `/silvio lang csCZ`. Český klient 2.4.3 neexistuje, takže výchozí je angličtina.
 
+**Aktualizace:** hra se nepřipojí k internetu, takže se addon ptá ostatních hráčů. Potichu si vyměňuje verzi s každým, kdo má SilvioSwinger ve tvé guildě, partě, raidu nebo battlegroundu. Když má někdo novější verzi, v chatu se jednou objeví zpráva s verzí a odkazem na poslední vydání. Nikdo jiný ve hře tyto zprávy nevidí.
+
 ## Okno
 
 ```

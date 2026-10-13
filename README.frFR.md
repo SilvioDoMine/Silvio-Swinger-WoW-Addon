@@ -30,6 +30,8 @@ sequenceDiagram
 2. Connectez-vous avec un Paladin. Sur les autres classes, l'addon se masque tout seul.
 3. Pour déplacer la fenêtre, maintenez **Maj** et faites glisser.
 
+**Mises à jour :** le jeu n'a pas accès à internet, donc l'addon demande aux autres joueurs. Il échange sa version, en silence, avec ceux qui ont SilvioSwinger dans votre guilde, groupe, raid ou champ de bataille. Si quelqu'un a une version plus récente, un message apparaît une seule fois dans le chat avec la version et le lien vers la dernière version publiée. Personne d'autre dans le jeu ne voit ces messages.
+
 ## La fenêtre
 
 ```

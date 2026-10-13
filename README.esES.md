@@ -30,6 +30,8 @@ sequenceDiagram
 2. Entra al juego con un Paladín. En otras clases el addon se oculta solo.
 3. Para mover la ventana, mantén **Shift** y arrastra.
 
+**Actualizaciones:** el juego no tiene acceso a internet, así que el addon pregunta a otros jugadores. Intercambia su versión, en silencio, con quien tenga SilvioSwinger en tu hermandad, grupo, banda o campo de batalla. Si alguien tiene una versión más nueva, aparece un mensaje en el chat, una sola vez, con la versión y el enlace a la última versión publicada. Nadie más en el juego ve estos mensajes.
+
 ## La ventana
 
 ```

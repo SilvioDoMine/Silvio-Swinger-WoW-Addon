@@ -31,6 +31,8 @@ sequenceDiagram
 3. Para mover a janela, segure **Shift** e arraste.
 4. Para ver o addon em português, escolha **Português (Brasil)** no menu **Idioma** do painel ou use `/silvio lang ptBR`. Não existe cliente 2.4.3 em português, então o padrão é inglês.
 
+**Atualizações:** o jogo não acessa a internet, então o addon pergunta aos outros jogadores. Ele troca a versão, em silêncio, com quem tem o SilvioSwinger na sua guilda, grupo, raide ou battleground. Se alguém tiver uma versão mais nova, aparece uma mensagem no chat, uma vez só, com a versão e o link da última release. Ninguém mais no jogo vê essas mensagens.
+
 ## A janela
 
 ```
