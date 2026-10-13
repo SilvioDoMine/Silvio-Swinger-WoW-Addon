@@ -124,7 +124,7 @@ O dano que o Seal of Blood causa em você mesmo é ignorado.
 | `/silvio cs <s>` | Folga exigida para encaixar Crusader Strike |
 | `/silvio scale <n>` | Escala da janela |
 | `/silvio judge` | Liga/desliga a sugestão de Julgamento |
-| `/silvio sound` | Liga/desliga o som quando a janela abre |
+| `/silvio sound` | Liga/desliga o som quando a janela abre (ao ligar, toca uma prévia) |
 | `/silvio msg` | Liga/desliga `TWIST DAMAGE` no topo |
 | `/silvio detail` | Liga/desliga o detalhamento do dano |
 | `/silvio dmg` | Mostra as estatísticas de dano |
@@ -142,7 +142,7 @@ Salvas em `SilvioSwingerDB`.
 | `buffer` | 0,05s | Margem somada à latência |
 | `csSlack` | 0,10s | Folga para encaixar um Crusader Strike antes da janela |
 | `judge` | ligado | Sugerir Julgamento depois do twist |
-| `sound` | ligado | Som quando a janela de twist abre |
+| `sound` | ligado | Ping do minimapa quando a janela de twist abre, uma vez por swing |
 | `lowMana` | 10% | Limite do aviso de mana baixa |
 | `dmgMsg` | ligado | Mensagem `TWIST DAMAGE` |
 | `breakdown` | ligado | Detalhar hit + selos na mensagem |

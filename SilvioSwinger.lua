@@ -298,6 +298,12 @@ end
 -- Lógica de recomendação
 -- ---------------------------------------------------------------------------
 local soundPlayedFor = 0
+-- Ping do minimapa: curto e fácil de ouvir no meio do combate
+-- (o clique de checkbox de antes sumia no barulho da luta)
+local TWIST_SOUND = "Sound\\Interface\\MapPing.wav"
+local function PlayTwistSound()
+	PlaySoundFile(TWIST_SOUND)
+end
 local lastCommandSeen = 0  -- último instante em que o SoC estava ativo
 
 local function Recommend()
@@ -400,7 +406,7 @@ f:SetScript("OnUpdate", function(self, elapsed)
 
 	if text == "TWIST!" and db.sound and soundPlayedFor ~= nextSwing then
 		soundPlayedFor = nextSwing
-		PlaySound("igMainMenuOptionCheckBoxOn")
+		PlayTwistSound()
 	end
 
 	local mana, maxMana = UnitMana("player"), UnitManaMax("player")
@@ -614,7 +620,9 @@ function BuildOptions()
 	local c1 = Check("hidden", "Esconder a janela", anchor, SetHidden)
 	local c2 = Check("locked", "Travar posição (nem com Shift move)", c1)
 	local c3 = Check("judge", "Sugerir Julgamento depois do twist", c2)
-	local c4 = Check("sound", "Som quando a janela de twist abre", c3)
+	local c4 = Check("sound", "Som quando a janela de twist abre", c3, function(v)
+		if v then PlayTwistSound() end
+	end)
 	local c5 = Check("dmgMsg", "Mostrar \"TWIST DAMAGE\" no topo da tela", c4)
 	local c6 = Check("breakdown", "Detalhar o dano (hit + SoC + SoB)", c5)
 
@@ -679,7 +687,10 @@ SlashCmdList.SILVIOSWINGER = function(input)
 	elseif cmd == "cs" and n then db.csSlack = n Print("folga CS = " .. n .. "s")
 	elseif cmd == "scale" and n then db.scale = n f:SetScale(n) Print("escala = " .. n)
 	elseif cmd == "judge" then db.judge = not db.judge Print("julgamento: " .. tostring(db.judge))
-	elseif cmd == "sound" then db.sound = not db.sound Print("som: " .. tostring(db.sound))
+	elseif cmd == "sound" then
+		db.sound = not db.sound
+		if db.sound then PlayTwistSound() end
+		Print("som: " .. tostring(db.sound))
 	elseif cmd == "msg" then db.dmgMsg = not db.dmgMsg Print("mensagem de dano: " .. tostring(db.dmgMsg))
 	elseif cmd == "detail" then db.breakdown = not db.breakdown Print("detalhes do dano: " .. tostring(db.breakdown))
 	elseif cmd == "dmg" then
