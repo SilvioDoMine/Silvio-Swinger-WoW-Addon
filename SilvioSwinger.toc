@@ -1,0 +1,7 @@
+## Interface: 20400
+## Title: SilvioSwinger
+## Notes: Indicador simples de seal twisting para Paladino Retribution (2.4.3)
+## Author: arthurhenrique
+## Version: 0.1
+## SavedVariables: SilvioSwingerDB
+SilvioSwinger.lua
