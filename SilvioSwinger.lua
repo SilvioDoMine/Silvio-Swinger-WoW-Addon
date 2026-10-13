@@ -3,6 +3,7 @@
 -- O swing que cai logo depois proca os dois selos. Depois: Julgamento (fora do GCD) + SoC de novo.
 
 local ADDON = "SilvioSwinger"
+local VERSION = GetAddOnMetadata(ADDON, "Version") or "?"  -- vem do .toc (## Version)
 
 local defaults = {
 	window   = 0.40,  -- quanto antes do swing o twist ainda funciona (s)
@@ -605,7 +606,7 @@ function BuildOptions()
 
 	local title = content:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
 	title:SetPoint("TOPLEFT", 16, -16)
-	title:SetText("SilvioSwinger")
+	title:SetText("SilvioSwinger v" .. VERSION)
 	local desc = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	desc:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -6)
 	desc:SetWidth(340) desc:SetJustifyH("LEFT")
@@ -812,6 +813,7 @@ SlashCmdList.SILVIOSWINGER = function(input)
 		ResetPosition()
 		Print(L.CHAT_RESET)
 	else
+		Print("v" .. VERSION)
 		Print(string.format(L.CHAT_STATUS,
 			twistKey and S[twistKey].name or L.NONE, speed, db.window, db.buffer))
 		Print("/silvio config | lock | unlock | window <s> | buffer <s> | cs <s> | scale <n> | judge | sound | msg | detail | dmg | dmgreset | show | hide | lang <auto|enUS|ptBR|...> | reset")
