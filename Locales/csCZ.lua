@@ -44,7 +44,7 @@ SilvioSwingerLocales.csCZ = {
 	RESULT_EARLY = "PŘÍLIŠ BRZY",
 	RESULT_LATE = "POZDĚ",
 	DMG_TOTAL = "TWIST POŠKOZENÍ: %d",
-	DMG_HIT = "hit %d",
+	DMG_HIT = "hit",
 
 	-- Chat
 	ON = "zapnuto",
@@ -66,4 +66,5 @@ SilvioSwingerLocales.csCZ = {
 	CHAT_STATUS = "twist pečeť: %s | zbraň %.2fs | okno %.2fs | rezerva %.2fs",
 	CHAT_LANG = "jazyk: %s",
 	CHAT_LANG_UNKNOWN = "neznámý jazyk \"%s\". Možnosti: %s",
+	CHAT_DEBUG = "debug: %s (události combat logu jdou do chatu až do /reload)",
 }

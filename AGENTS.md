@@ -34,7 +34,7 @@ Do not create tags or GitHub Releases by hand. When the version in `SilvioSwinge
 
 - Lua 5.1 and the WoW 2.4.3 API only (`this`-era widgets, `getglobal`, no `C_` namespaces). Check that any API you use existed in 2.4.3.
 - Code comments are in Portuguese; keep that style.
-- No user-visible text in `SilvioSwinger.lua`: add a key to every file in `Locales/` (English in `enUS.lua` first) and read it through `L`. Keep the same `%d`/`%s`/`%.1f` placeholders, in the same order, in every language.
+- No user-visible text in `SilvioSwinger.lua` (the one exception is the `/silvio debug` output, which is technical and stays in English): add a key to every file in `Locales/` (English in `enUS.lua` first) and read it through `L`. Keep the same `%d`/`%s`/`%.1f` placeholders, in the same order, in every language.
 - Spell names come from `GetSpellInfo(spellID)`, never hardcoded.
 
 ## Documentation

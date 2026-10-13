@@ -112,8 +112,10 @@ stateDiagram-v2
 Tout ce qui tombe avec le coup en moins de 0,4s (coup blanc, attaques supplémentaires et déclenchements de sceau) va dans un même « paquet ». Si deux sceaux se sont déclenchés ensemble, ou si le twist était bien synchronisé, le total s'affiche en haut de l'écran :
 
 ```
-DÉGÂTS DU TWIST : 2480  (coup 1320 + SoC 690 + SoB 470)
+DÉGÂTS DU TWIST : 3770  =  coup 1320 (1) + Windfury Attack 600 (1) + SoC 1380 (2) + SoB 470 (1)
 ```
+
+Le nombre entre parenthèses indique combien de coups ou de déclenchements de chacun sont tombés. Les attaques supplémentaires (Rétribution, Totem Furie-des-vents, Main de justice...) apparaissent à part, avec le nom que leur donne votre client. Il est ainsi facile de voir quand quelque chose est désynchronisé : si `SoB` manque, le changement de sceau est arrivé après le coup. `SoB (2)` avec un seul coup est normal : le déclenchement du Sceau d'autorité peut aussi déclencher le Sceau de sang, donc un bon twist donne souvent un SoB de plus. Utilisez `/silvio debug` pour voir chaque événement et comment il a été compté.
 
 Les dégâts que le Sceau de sang vous inflige à vous-même sont ignorés.
 
@@ -138,6 +140,7 @@ Les dégâts que le Sceau de sang vous inflige à vous-même sont ignorés.
 | `/silvio dmgreset` | Remet à zéro les statistiques de dégâts |
 | `/silvio show` / `hide` | Affiche ou masque la fenêtre (la logique continue de tourner) |
 | `/silvio lang <code>` | Change la langue (`auto`, `enUS`, `frFR`, `ptBR`...) |
+| `/silvio debug` | Mode diagnostic : affiche dans le chat chaque événement du journal de combat du twist et comment il a été compté (jusqu'au `/reload`) |
 | `/silvio reset` | Remet la série à zéro et replace la fenêtre |
 
 ## Réglages

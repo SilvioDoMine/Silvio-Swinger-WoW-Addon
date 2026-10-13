@@ -113,8 +113,10 @@ stateDiagram-v2
 Všechno, co dopadne se swingem do 0,4s (bílý hit, extra útoky a procy pečetí), jde do jednoho „balíčku“. Pokud procly dvě pečeti zároveň nebo byl twist správně načasovaný, součet se zobrazí nahoře na obrazovce:
 
 ```
-TWIST POŠKOZENÍ: 2480  (hit 1320 + SoC 690 + SoB 470)
+TWIST POŠKOZENÍ: 3770  =  hit 1320 (1) + Windfury Attack 600 (1) + SoC 1380 (2) + SoB 470 (1)
 ```
+
+Číslo v závorce říká, kolik zásahů nebo proců každého z nich dopadlo. Extra útoky (Reckoning, Windfury Totem, Hand of Justice...) se ukazují zvlášť, pod jménem, které jim dává tvůj klient. Snadno tak poznáš, když něco nesedí: pokud chybí `SoB`, výměna pečeti dorazila až po swingu. `SoB (2)` při jediném hitu je normální: proc Seal of Command může spustit i Seal of Blood, takže dobrý twist často přinese jeden SoB navíc. Pomocí `/silvio debug` uvidíš každou událost a jak byla započítána.
 
 Poškození, které Seal of Blood způsobí tobě, se ignoruje.
 
@@ -139,6 +141,7 @@ Poškození, které Seal of Blood způsobí tobě, se ignoruje.
 | `/silvio dmgreset` | Vynuluje statistiky poškození |
 | `/silvio show` / `hide` | Ukáže nebo skryje okno (logika běží dál) |
 | `/silvio lang <kód>` | Změní jazyk (`auto`, `enUS`, `ptBR`, `csCZ`...) |
+| `/silvio debug` | Diagnostický režim: vypíše do chatu každou událost combat logu twistu a jak byla započítána (až do `/reload`) |
 | `/silvio reset` | Vynuluje sérii a vrátí okno na místo |
 
 ## Nastavení

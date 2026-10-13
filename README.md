@@ -112,8 +112,10 @@ stateDiagram-v2
 Everything that lands with the swing within 0.4s (white hit, extra attacks and seal procs) goes into the same "bundle". If two seals procced together, or if the twist was timed correctly, the total shows up at the top of the screen:
 
 ```
-TWIST DAMAGE: 2480  (hit 1320 + SoC 690 + SoB 470)
+TWIST DAMAGE: 3770  =  hit 1320 (1) + Windfury Attack 600 (1) + SoC 1380 (2) + SoB 470 (1)
 ```
+
+The number in parentheses is how many hits or procs of each one landed. Extra attacks (Reckoning, Windfury Totem, Hand of Justice...) are listed on their own, with the name your client gives them. That makes it easy to spot when something is out of sync: if `SoB` is missing, the seal swap landed after the swing. `SoB (2)` with a single hit is normal: the Seal of Command proc can trigger Seal of Blood too, so a good twist often lands one extra SoB. Use `/silvio debug` to see each event and how it was counted.
 
 Damage that Seal of Blood deals to yourself is ignored.
 
@@ -138,6 +140,7 @@ Damage that Seal of Blood deals to yourself is ignored.
 | `/silvio dmgreset` | Resets damage statistics |
 | `/silvio show` / `hide` | Shows or hides the window (the logic keeps running) |
 | `/silvio lang <code>` | Changes the language (`auto`, `enUS`, `ptBR`, `csCZ`...) |
+| `/silvio debug` | Diagnostic mode: prints every combat log event of the twist and how it was counted (until `/reload`) |
 | `/silvio reset` | Resets the streak and repositions the window |
 
 ## Settings

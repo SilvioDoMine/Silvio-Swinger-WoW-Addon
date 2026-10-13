@@ -45,7 +45,7 @@ SilvioSwingerLocales.enUS = {
 	RESULT_EARLY = "TOO EARLY",
 	RESULT_LATE = "LATE",
 	DMG_TOTAL = "TWIST DAMAGE: %d",
-	DMG_HIT = "hit %d",
+	DMG_HIT = "hit",
 
 	-- Chat
 	ON = "on",
@@ -67,4 +67,5 @@ SilvioSwingerLocales.enUS = {
 	CHAT_STATUS = "twist seal: %s | weapon %.2fs | window %.2fs | buffer %.2fs",
 	CHAT_LANG = "language: %s",
 	CHAT_LANG_UNKNOWN = "unknown language \"%s\". Options: %s",
+	CHAT_DEBUG = "debug: %s (combat log events go to chat until /reload)",
 }

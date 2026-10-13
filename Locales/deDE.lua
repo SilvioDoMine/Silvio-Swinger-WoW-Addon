@@ -43,7 +43,7 @@ SilvioSwingerLocales.deDE = {
 	RESULT_EARLY = "ZU FRÜH",
 	RESULT_LATE = "ZU SPÄT",
 	DMG_TOTAL = "TWIST-SCHADEN: %d",
-	DMG_HIT = "Treffer %d",
+	DMG_HIT = "Treffer",
 
 	-- Chat
 	ON = "an",
@@ -65,4 +65,5 @@ SilvioSwingerLocales.deDE = {
 	CHAT_STATUS = "Twist-Siegel: %s | Waffe %.2fs | Fenster %.2fs | Puffer %.2fs",
 	CHAT_LANG = "Sprache: %s",
 	CHAT_LANG_UNKNOWN = "unbekannte Sprache \"%s\". Optionen: %s",
+	CHAT_DEBUG = "Debug: %s (Kampflog-Ereignisse erscheinen bis zum /reload im Chat)",
 }

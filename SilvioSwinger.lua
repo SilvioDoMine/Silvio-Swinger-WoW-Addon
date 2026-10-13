@@ -164,8 +164,14 @@ end
 -- ---------------------------------------------------------------------------
 local SHORT = { COMMAND = "SoC", BLOOD = "SoB", MARTYR = "SoM", RIGHTEOUS = "SoR" }
 local SEAL_ORDER = { "COMMAND", "BLOOD", "MARTYR", "RIGHTEOUS" }
-local hit                  -- pacote atual: { start, white, seals = {key=dano}, twist }
+-- pacote atual: { start, white = {dmg, n}, extras = {nome = {dmg, n}}, extraOrder = {nomes},
+--                 seals = {key = {dmg, n}}, twist }
+local hit
 local twistStats = { count = 0, total = 0, biggest = 0 }
+
+-- Ataques extras anunciados no combat log (SPELL_EXTRA_ATTACKS: Reckoning, Windfury Totem,
+-- Hand of Justice...) que ainda não caíram: { name, left, at }. O golpe extra vem logo depois.
+local pendingExtras = {}
 
 local function SealKeyByName(name)
 	for _, k in ipairs(SEAL_ORDER) do
@@ -174,8 +180,68 @@ local function SealKeyByName(name)
 end
 
 local function HitBucket()
-	if not hit then hit = { start = GetTime(), white = 0, seals = {} } end
+	if not hit then
+		hit = { start = GetTime(), white = { dmg = 0, n = 0 }, extras = {}, extraOrder = {}, seals = {} }
+	end
 	return hit
+end
+
+-- Soma dano e conta um golpe numa entrada { dmg, n }
+local function Add(entry, dmg)
+	entry.dmg = entry.dmg + (dmg or 0)
+	entry.n = entry.n + 1
+end
+
+local function AddExtra(b, name, dmg)
+	if not b.extras[name] then
+		b.extras[name] = { dmg = 0, n = 0 }
+		table.insert(b.extraOrder, name)
+	end
+	Add(b.extras[name], dmg)
+end
+
+-- Consome um ataque extra anunciado; anúncios com mais de 1s sem golpe são descartados
+local function TakeExtra()
+	local now = GetTime()
+	while pendingExtras[1] do
+		local e = pendingExtras[1]
+		if now - e.at > 1 then
+			table.remove(pendingExtras, 1)
+		else
+			e.left = e.left - 1
+			if e.left <= 0 then table.remove(pendingExtras, 1) end
+			return e.name
+		end
+	end
+end
+
+-- ---------------------------------------------------------------------------
+-- Modo diagnóstico (/silvio debug): escreve no chat cada evento do combat log que
+-- passa pelo pacote do twist e como foi classificado. Saída técnica, sem tradução.
+-- Não é salvo: desliga no /reload.
+-- ---------------------------------------------------------------------------
+local debugOn = false
+local debugT0 = 0          -- timestamp do combat log do primeiro evento do grupo atual
+
+local function DebugLine(text)
+	DEFAULT_CHAT_FRAME:AddMessage("|cff999999[SS debug]|r " .. text)
+end
+
+-- ts: timestamp do combat log (tem milissegundos, ao contrário do GetTime() do frame)
+local function DebugEvent(ts, subEvent, spell, target, value, crit, outcome)
+	if not debugOn then return end
+	ts = ts or GetTime()
+	if ts - debugT0 > 1 then
+		debugT0 = ts
+		DebugLine("|cff666666--------|r")
+	end
+	DebugLine(string.format("+%.3f %s %s-> %s %s%s  |cffffff00%s|r",
+		ts - debugT0, subEvent, spell and (spell .. " ") or "", target or "?",
+		tostring(value or ""), crit and " CRIT" or "", outcome))
+end
+
+local function Part(label, entry)
+	return string.format("%s %d (%d)", label, entry.dmg, entry.n)
 end
 
 local function FlushHit(force)
@@ -185,15 +251,25 @@ local function FlushHit(force)
 	hit = nil
 
 	local nSeals, sealDmg = 0, 0
-	for _, dmg in pairs(b.seals) do
+	for _, e in pairs(b.seals) do
 		nSeals = nSeals + 1
-		sealDmg = sealDmg + dmg
+		sealDmg = sealDmg + e.dmg
 	end
 	-- twist = dois selos procaram juntos, ou o twist foi feito no tempo certo
-	if nSeals < 2 and not b.twist then return end
+	if nSeals < 2 and not b.twist then
+		if debugOn then DebugLine(string.format("bundle discarded: not a twist (%d seal(s), timed twist: no)", nSeals)) end
+		return
+	end
 
-	local total = b.white + sealDmg
+	local extraDmg = 0
+	for _, e in pairs(b.extras) do extraDmg = extraDmg + e.dmg end
+
+	local total = b.white.dmg + extraDmg + sealDmg
 	if total <= 0 then return end
+	if debugOn then
+		DebugLine(string.format("bundle = twist, total %d (%d seal(s), timed twist: %s)",
+			total, nSeals, b.twist and "yes" or "no"))
+	end
 	twistStats.count = twistStats.count + 1
 	twistStats.total = twistStats.total + total
 	if total > twistStats.biggest then twistStats.biggest = total end
@@ -201,11 +277,17 @@ local function FlushHit(force)
 	if db.dmgMsg then
 		local text = string.format(L.DMG_TOTAL, total)
 		if db.breakdown then
-			local parts = { string.format(L.DMG_HIT, b.white) }
-			for _, k in ipairs(SEAL_ORDER) do
-				if b.seals[k] then table.insert(parts, SHORT[k] .. " " .. b.seals[k]) end
+			-- "hit 1320 (1) + Windfury Attack 600 (1) + SoC 1380 (2) + SoB 470 (1)":
+			-- o número entre parênteses é quantos golpes/procs de cada um caíram
+			local parts = {}
+			if b.white.n > 0 then table.insert(parts, Part(L.DMG_HIT, b.white)) end
+			for _, name in ipairs(b.extraOrder) do
+				table.insert(parts, Part(name, b.extras[name]))
 			end
-			text = text .. "  (" .. table.concat(parts, " + ") .. ")"
+			for _, k in ipairs(SEAL_ORDER) do
+				if b.seals[k] then table.insert(parts, Part(SHORT[k], b.seals[k])) end
+			end
+			text = text .. "  =  " .. table.concat(parts, " + ")
 		end
 		UIErrorsFrame:AddMessage(text, 0.25, 0.6, 1.0, 1.0, UIERRORS_HOLD_TIME)
 	end
@@ -520,6 +602,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 	elseif event == "PLAYER_LEAVE_COMBAT" then
 		attacking = false
 		twistCastAt = nil
+		for i = #pendingExtras, 1, -1 do pendingExtras[i] = nil end
 		FlushHit(true)
 
 	elseif event == "UNIT_SPELLCAST_START" then
@@ -548,21 +631,54 @@ f:SetScript("OnEvent", function(self, event, ...)
 		end
 
 	elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		local _, subEvent, srcGUID, _, _, dstGUID = ...
-		if srcGUID ~= playerGUID then return end
-		if subEvent == "SWING_DAMAGE" then
-			local b = HitBucket()
-			b.white = b.white + (select(9, ...) or 0)
-			OnSwing()
-		elseif subEvent == "SWING_MISSED" then
-			OnSwing()
-		elseif subEvent == "SPELL_DAMAGE" and dstGUID ~= playerGUID then
-			-- dstGUID ~= player: ignora o dano que o Seal of Blood causa em você
-			local key = SealKeyByName((select(10, ...)))
-			if key then
-				local b = HitBucket()
-				b.seals[key] = (b.seals[key] or 0) + (select(12, ...) or 0)
+		local ts, subEvent, srcGUID, srcName, _, dstGUID, dstName = ...
+		if srcGUID ~= playerGUID then
+			-- No debug, mostra ataque extra que outra pessoa te deu (ex.: totem de um xamã)
+			if debugOn and subEvent == "SPELL_EXTRA_ATTACKS" and dstGUID == playerGUID then
+				DebugEvent(ts, subEvent, select(10, ...), dstName, select(12, ...), nil,
+					"IGNORED: source is " .. tostring(srcName))
 			end
+			return
+		end
+		-- Posições depois dos 8 campos base (2.4.3, sem "overkill"):
+		-- SWING_DAMAGE: 9 amount ... 14 critical | SPELL_*: 10 spellName, 12 amount ... 17 critical
+		if subEvent == "SWING_DAMAGE" or subEvent == "SWING_MISSED" then
+			-- Golpe logo depois do swing anterior + ataque extra anunciado = é o golpe extra.
+			-- Um swing normal nunca cai a menos de meia velocidade da arma do anterior.
+			local extra = GetTime() - lastSwing < speed * 0.5 and TakeExtra()
+			local outcome = extra and ("extra: " .. extra) or "hit"
+			if subEvent == "SWING_DAMAGE" then
+				local b = HitBucket()
+				local dmg = select(9, ...)
+				if extra then AddExtra(b, extra, dmg) else Add(b.white, dmg) end
+				DebugEvent(ts, subEvent, nil, dstName, dmg, select(14, ...), outcome)
+			else
+				DebugEvent(ts, subEvent, nil, dstName, select(9, ...), nil, outcome .. " (missed, not counted)")
+			end
+			OnSwing()
+		elseif subEvent == "SPELL_EXTRA_ATTACKS" then
+			table.insert(pendingExtras, {
+				name = select(10, ...) or "?",
+				left = select(12, ...) or 1,
+				at = GetTime(),
+			})
+			DebugEvent(ts, subEvent, select(10, ...), dstName, select(12, ...), nil, "queued")
+		elseif subEvent == "SPELL_DAMAGE" then
+			local spell, amount = select(10, ...), select(12, ...)
+			local key = SealKeyByName(spell)
+			if dstGUID == playerGUID then
+				-- o dano que o Seal of Blood causa em você
+				DebugEvent(ts, subEvent, spell, dstName, amount, nil, "IGNORED: self")
+			elseif key then
+				local b = HitBucket()
+				b.seals[key] = b.seals[key] or { dmg = 0, n = 0 }
+				Add(b.seals[key], amount)
+				DebugEvent(ts, subEvent, spell, dstName, amount, select(17, ...), SHORT[key])
+			else
+				DebugEvent(ts, subEvent, spell, dstName, amount, select(17, ...), "IGNORED: not a seal")
+			end
+		elseif subEvent == "SPELL_MISSED" and debugOn then
+			DebugEvent(ts, subEvent, select(10, ...), dstName, select(12, ...), nil, "missed, not counted")
 		end
 	end
 end)
@@ -789,6 +905,9 @@ SlashCmdList.SILVIOSWINGER = function(input)
 		local c = twistStats.count
 		Print(string.format(L.CHAT_DMG,
 			c, twistStats.total, c > 0 and twistStats.total / c or 0, twistStats.biggest))
+	elseif cmd == "debug" then
+		debugOn = not debugOn
+		Print(string.format(L.CHAT_DEBUG, OnOff(debugOn)))
 	elseif cmd == "dmgreset" then
 		twistStats.count, twistStats.total, twistStats.biggest = 0, 0, 0
 		Print(L.CHAT_DMGRESET)
@@ -816,6 +935,6 @@ SlashCmdList.SILVIOSWINGER = function(input)
 		Print("v" .. VERSION)
 		Print(string.format(L.CHAT_STATUS,
 			twistKey and S[twistKey].name or L.NONE, speed, db.window, db.buffer))
-		Print("/silvio config | lock | unlock | window <s> | buffer <s> | cs <s> | scale <n> | judge | sound | msg | detail | dmg | dmgreset | show | hide | lang <auto|enUS|ptBR|...> | reset")
+		Print("/silvio config | lock | unlock | window <s> | buffer <s> | cs <s> | scale <n> | judge | sound | msg | detail | dmg | dmgreset | show | hide | lang <auto|enUS|ptBR|...> | debug | reset")
 	end
 end

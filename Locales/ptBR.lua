@@ -43,7 +43,7 @@ SilvioSwingerLocales.ptBR = {
 	RESULT_EARLY = "CEDO DEMAIS",
 	RESULT_LATE = "ATRASADO",
 	DMG_TOTAL = "DANO DO TWIST: %d",
-	DMG_HIT = "hit %d",
+	DMG_HIT = "hit",
 
 	-- Chat
 	ON = "ligado",
@@ -65,4 +65,5 @@ SilvioSwingerLocales.ptBR = {
 	CHAT_STATUS = "selo de twist: %s | arma %.2fs | janela %.2fs | buffer %.2fs",
 	CHAT_LANG = "idioma: %s",
 	CHAT_LANG_UNKNOWN = "idioma desconhecido \"%s\". Opções: %s",
+	CHAT_DEBUG = "debug: %s (eventos do combat log vão para o chat até o /reload)",
 }

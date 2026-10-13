@@ -45,7 +45,7 @@ SilvioSwingerLocales.ruRU = {
 	RESULT_EARLY = "РАНО",
 	RESULT_LATE = "ПОЗДНО",
 	DMG_TOTAL = "УРОН ТВИСТА: %d",
-	DMG_HIT = "удар %d",
+	DMG_HIT = "удар",
 
 	-- Chat
 	ON = "вкл",
@@ -67,4 +67,5 @@ SilvioSwingerLocales.ruRU = {
 	CHAT_STATUS = "печать твиста: %s | оружие %.2fс | окно %.2fс | запас %.2fс",
 	CHAT_LANG = "язык: %s",
 	CHAT_LANG_UNKNOWN = "неизвестный язык «%s». Варианты: %s",
+	CHAT_DEBUG = "отладка: %s (события журнала боя выводятся в чат до /reload)",
 }

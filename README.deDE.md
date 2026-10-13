@@ -112,8 +112,10 @@ stateDiagram-v2
 Alles, was innerhalb von 0,4s mit dem Schlag trifft (weißer Treffer, Extraangriffe und Siegel-Procs), landet in einem „Paket“. Wenn zwei Siegel zusammen geproct haben oder der Twist richtig getimt war, erscheint die Summe oben am Bildschirm:
 
 ```
-TWIST-SCHADEN: 2480  (Treffer 1320 + SoC 690 + SoB 470)
+TWIST-SCHADEN: 3770  =  Treffer 1320 (1) + Windfury Attack 600 (1) + SoC 1380 (2) + SoB 470 (1)
 ```
+
+Die Zahl in Klammern gibt an, wie viele Treffer oder Procs von jedem gelandet sind. Extraangriffe (Abrechnung, Totem des Windzorns, Hand der Gerechtigkeit...) werden einzeln aufgeführt, mit dem Namen, den dein Client ihnen gibt. So siehst du leicht, wenn etwas nicht synchron ist: Fehlt `SoB`, kam der Siegelwechsel erst nach dem Schlag an. `SoB (2)` bei nur einem Treffer ist normal: Der Proc des Siegels des Befehls kann auch das Siegel des Blutes auslösen, daher bringt ein guter Twist oft ein zusätzliches SoB. Mit `/silvio debug` siehst du jedes Ereignis und wie es gezählt wurde.
 
 Schaden, den das Siegel des Blutes dir selbst zufügt, wird ignoriert.
 
@@ -138,6 +140,7 @@ Schaden, den das Siegel des Blutes dir selbst zufügt, wird ignoriert.
 | `/silvio dmgreset` | Setzt die Schadensstatistik zurück |
 | `/silvio show` / `hide` | Zeigt oder versteckt das Fenster (die Logik läuft weiter) |
 | `/silvio lang <Code>` | Ändert die Sprache (`auto`, `enUS`, `deDE`, `ptBR`...) |
+| `/silvio debug` | Diagnosemodus: schreibt jedes Kampflog-Ereignis des Twists in den Chat und wie es gezählt wurde (bis zum `/reload`) |
 | `/silvio reset` | Setzt die Serie zurück und positioniert das Fenster neu |
 
 ## Einstellungen

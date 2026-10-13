@@ -43,7 +43,7 @@ SilvioSwingerLocales.frFR = {
 	RESULT_EARLY = "TROP TÔT",
 	RESULT_LATE = "EN RETARD",
 	DMG_TOTAL = "DÉGÂTS DU TWIST : %d",
-	DMG_HIT = "coup %d",
+	DMG_HIT = "coup",
 
 	-- Chat
 	ON = "activé",
@@ -65,4 +65,5 @@ SilvioSwingerLocales.frFR = {
 	CHAT_STATUS = "sceau de twist : %s | arme %.2fs | fenêtre %.2fs | marge %.2fs",
 	CHAT_LANG = "langue : %s",
 	CHAT_LANG_UNKNOWN = "langue inconnue \"%s\". Options : %s",
+	CHAT_DEBUG = "débogage : %s (les événements du journal de combat vont dans le chat jusqu'au /reload)",
 }

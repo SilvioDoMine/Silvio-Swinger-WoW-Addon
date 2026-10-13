@@ -22,9 +22,14 @@ The full rules for agents and contributors are in [AGENTS.md](AGENTS.md).
 - Every release is published on GitHub Releases with a ready-to-install `SilvioSwinger-X.Y.Z.zip`, whose folder is already named `SilvioSwinger`.
 - `AGENTS.md` with the changelog, versioning and coding rules for contributors and coding agents.
 
+- The twist damage breakdown shows how many hits or procs of each source landed, e.g. `hit 1320 (1) + SoC 1380 (2) + SoB 470 (1)`.
+- Extra attacks (Reckoning, Windfury Totem, Hand of Justice...) are listed on their own in the breakdown, with the name the client gives them, instead of being added to the white hit.
+- `/silvio debug`: diagnostic mode that prints every combat log event of the twist to chat, with timing, target, damage, crits and how the addon counted it, plus whether the bundle became a twist. Turns off on `/reload`.
+
 ### Changed
 
 - The install instructions in every README now start from the Release zip.
+- The damage breakdown is shown after `=` instead of between parentheses, since each part now has its own count in parentheses.
 
 ## [0.3.0] - 2026-10-13
 

@@ -113,8 +113,10 @@ stateDiagram-v2
 Tudo que cai junto com o swing em até 0,4s (hit branco, ataques extras e procs de selo) entra num mesmo "pacote". Se dois selos procaram juntos, ou se o twist foi feito no tempo certo, o total aparece no topo da tela:
 
 ```
-DANO DO TWIST: 2480  (hit 1320 + SoC 690 + SoB 470)
+DANO DO TWIST: 3770  =  hit 1320 (1) + Windfury Attack 600 (1) + SoC 1380 (2) + SoB 470 (1)
 ```
+
+O número entre parênteses é quantos golpes ou procs de cada um caíram. Ataques extras (Reckoning, Windfury Totem, Hand of Justice...) aparecem separados, com o nome que o seu cliente dá a eles. Assim fica fácil ver quando algo está dessincronizado: se o `SoB` não aparece, a troca de selo chegou depois do swing. `SoB (2)` com um hit só é normal: o proc do Seal of Command também pode acionar o Seal of Blood, então um bom twist muitas vezes rende um SoB a mais. Use `/silvio debug` para ver cada evento e como ele foi contado.
 
 O dano que o Seal of Blood causa em você mesmo é ignorado.
 
@@ -139,6 +141,7 @@ O dano que o Seal of Blood causa em você mesmo é ignorado.
 | `/silvio dmgreset` | Zera as estatísticas de dano |
 | `/silvio show` / `hide` | Mostra ou esconde a janela (a lógica continua rodando) |
 | `/silvio lang <código>` | Troca o idioma (`auto`, `enUS`, `ptBR`, `csCZ`...) |
+| `/silvio debug` | Modo diagnóstico: escreve no chat cada evento do combat log do twist e como ele foi contado (até o `/reload`) |
 | `/silvio reset` | Zera o streak e reposiciona a janela |
 
 ## Configurações
