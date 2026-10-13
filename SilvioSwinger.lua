@@ -16,12 +16,47 @@ local defaults = {
 	scale    = 1.0,
 	locked   = false,
 	hidden   = false,
+	locale   = "auto", -- "auto" = idioma do cliente; ou um código de Locales/ (ex.: "ptBR")
 	point    = { "CENTER", "UIParent", "CENTER", 0, -160 },
 }
 
 local db
 local playerGUID
 local BuildOptions, SetHidden  -- definidas lá embaixo, junto do painel de opções
+
+-- ---------------------------------------------------------------------------
+-- Localização: cada arquivo em Locales/ registra SilvioSwingerLocales[código].
+-- L recebe o inglês e, por cima, o idioma escolhido (texto faltando = inglês).
+-- ---------------------------------------------------------------------------
+local LOCALES = SilvioSwingerLocales or {}
+local ALIASES = { enGB = "enUS", esMX = "esES" }
+local L = {}
+
+local function ResolveLocale(code)
+	code = ALIASES[code] or code
+	if LOCALES[code] then return code end
+	return "enUS"
+end
+
+local function ApplyLocale()
+	local code = ResolveLocale(db.locale ~= "auto" and db.locale or GetLocale())
+	for k in pairs(L) do L[k] = nil end
+	for k, v in pairs(LOCALES.enUS) do L[k] = v end
+	for k, v in pairs(LOCALES[code]) do L[k] = v end
+	L._code = code
+end
+
+-- Códigos disponíveis, ordenados pelo nome do idioma
+local function LocaleCodes()
+	local codes = {}
+	for code in pairs(LOCALES) do table.insert(codes, code) end
+	table.sort(codes, function(a, b) return LOCALES[a]._name < LOCALES[b]._name end)
+	return codes
+end
+
+local function OnOff(v)
+	return v and L.ON or L.OFF
+end
 
 -- Nomes localizados via spell ID (funciona em qualquer idioma do cliente)
 local function SpellName(id)
@@ -163,9 +198,9 @@ local function FlushHit(force)
 	if total > twistStats.biggest then twistStats.biggest = total end
 
 	if db.dmgMsg then
-		local text = "TWIST DAMAGE: " .. total
+		local text = string.format(L.DMG_TOTAL, total)
 		if db.breakdown then
-			local parts = { "hit " .. b.white }
+			local parts = { string.format(L.DMG_HIT, b.white) }
 			for _, k in ipairs(SEAL_ORDER) do
 				if b.seals[k] then table.insert(parts, SHORT[k] .. " " .. b.seals[k]) end
 			end
@@ -185,11 +220,11 @@ local function OnSwing()
 		if gap <= db.window + 0.1 then
 			streak = streak + 1
 			if streak > best then best = streak end
-			lastResult = "PERFEITO"
+			lastResult = "RESULT_PERFECT"
 			HitBucket().twist = true
 		else
 			streak = 0
-			lastResult = "CEDO DEMAIS"
+			lastResult = "RESULT_EARLY"
 		end
 		lastResultAt = now
 		twistCastAt = nil
@@ -317,47 +352,48 @@ local function Recommend()
 	local jCD = Knows("JUDGE") and CooldownLeft(S.JUDGE.name) or nil
 	local tw = twistKey
 
-	-- retorna: ícone agora, ícone próximo, mensagem, cor {r,g,b}, brilho
+	-- retorna: ícone agora, ícone próximo, chave do texto em L, cor {r,g,b}, brilho, argumento do texto
+	-- (chave "SPELL" = o argumento já é o nome da magia, vindo do cliente)
 	if not Knows("COMMAND") then
-		return nil, false, "Sem Seal of Command", { 1, 0.3, 0.3 }, false
+		return nil, false, "MSG_NO_COMMAND", { 1, 0.3, 0.3 }, false
 	end
 
 	-- Fora de combate / sem swing conhecido: só prepare o SoC
 	if not t then
 		if seal == "COMMAND" then
-			return "COMMAND", tw or false, "Pronto (SoC)", { 0.6, 1, 0.6 }, false
+			return "COMMAND", tw or false, "MSG_READY", { 0.6, 1, 0.6 }, false
 		end
-		return "COMMAND", tw or false, "Prepare SoC", { 1, 0.82, 0 }, gcd == 0
+		return "COMMAND", tw or false, "MSG_PREPARE", { 1, 0.82, 0 }, gcd == 0
 	end
 
 	if seal == "COMMAND" then
 		if not tw then
-			return "COMMAND", false, "Sem selo p/ twist", { 1, 0.5, 0 }, false
+			return "COMMAND", false, "MSG_NO_TWIST_SEAL", { 1, 0.5, 0 }, false
 		end
 		if t <= db.window and t > lat then
 			if gcd <= t - lat then
-				return tw, "JUDGE", "TWIST!", { 0.2, 1, 0.2 }, true
+				return tw, "JUDGE", "MSG_TWIST", { 0.2, 1, 0.2 }, true
 			end
-			return tw, "COMMAND", "GCD: perdeu", { 1, 0.3, 0.3 }, false
+			return tw, "COMMAND", "MSG_GCD_LOST", { 1, 0.3, 0.3 }, false
 		elseif t <= lat then
-			return tw, "COMMAND", "Tarde demais", { 1, 0.3, 0.3 }, false
+			return tw, "COMMAND", "MSG_TOO_LATE", { 1, 0.3, 0.3 }, false
 		end
 		-- Ainda longe da janela: dá pra encaixar Crusader Strike?
 		local toWindow = t - db.window
 		if csCD and csCD <= gcd and toWindow >= gcd + gcdDuration + db.csSlack then
-			return "CS", tw, "Crusader Strike", { 1, 0.82, 0 }, gcd == 0
+			return "CS", tw, "SPELL", { 1, 0.82, 0 }, gcd == 0, S.CS.name
 		end
-		return tw, "JUDGE", string.format("Espere %.1fs", toWindow), { 0.8, 0.8, 0.8 }, false
+		return tw, "JUDGE", "MSG_WAIT", { 0.8, 0.8, 0.8 }, false, toWindow
 	end
 
 	-- Selo de twist ativo (pós-swing) ou nenhum selo
 	if seal == tw and db.judge and jCD and jCD == 0 then
-		return "JUDGE", "COMMAND", "Julgamento + SoC", { 1, 0.82, 0 }, true
+		return "JUDGE", "COMMAND", "MSG_JUDGE_SOC", { 1, 0.82, 0 }, true
 	end
 	if gcd > 0 then
-		return "COMMAND", false, string.format("SoC em %.1fs", gcd), { 0.8, 0.8, 0.8 }, false
+		return "COMMAND", false, "MSG_SOC_IN", { 0.8, 0.8, 0.8 }, false, gcd
 	end
-	return "COMMAND", tw or false, "Seal of Command", { 1, 0.82, 0 }, true
+	return "COMMAND", tw or false, "SPELL", { 1, 0.82, 0 }, true, S.COMMAND.name
 end
 
 local function UpdateBar()
@@ -385,7 +421,7 @@ local function UpdateBar()
 		barText:SetText(string.format("%.2f / %.2f", left, speed))
 	else
 		fill:SetWidth(W)
-		barText:SetText(attacking and "swing pronto" or string.format("%.2f", speed))
+		barText:SetText(attacking and L.BAR_READY or string.format("%.2f", speed))
 	end
 end
 
@@ -397,35 +433,39 @@ f:SetScript("OnUpdate", function(self, elapsed)
 
 	FlushHit()
 
-	local nowKey, nextKey, text, color, shine = Recommend()
+	local nowKey, nextKey, msgKey, color, shine, arg = Recommend()
 	SetIcon(nowIcon, nowKey)
 	SetIcon(nextIcon, nextKey)
-	msg:SetText(text)
+	if msgKey == "SPELL" then
+		msg:SetText(arg)
+	else
+		msg:SetText(string.format(L[msgKey], arg))
+	end
 	msg:SetTextColor(color[1], color[2], color[3])
 	if shine then glow:Show() else glow:Hide() end
 
-	if text == "TWIST!" and db.sound and soundPlayedFor ~= nextSwing then
+	if msgKey == "MSG_TWIST" and db.sound and soundPlayedFor ~= nextSwing then
 		soundPlayedFor = nextSwing
 		PlayTwistSound()
 	end
 
 	local mana, maxMana = UnitMana("player"), UnitManaMax("player")
 	local lat = Latency()
-	local info = string.format("lat %dms", lat * 1000)
+	local info = string.format(L.LATENCY, lat * 1000)
 	if maxMana > 0 and mana / maxMana < db.lowMana then
-		info = "|cffff4040MANA BAIXA|r  " .. info
+		info = "|cffff4040" .. L.LOW_MANA .. "|r  " .. info
 	end
 	sub:SetText(info)
 
 	if twistStats.count > 0 then
-		streakText:SetText(string.format("Streak %d (melhor %d)  média %d",
+		streakText:SetText(string.format(L.STREAK_AVG,
 			streak, best, twistStats.total / twistStats.count))
 	else
-		streakText:SetText(string.format("Streak %d (melhor %d)", streak, best))
+		streakText:SetText(string.format(L.STREAK, streak, best))
 	end
 	if lastResult and GetTime() - lastResultAt < 1.5 then
-		resultText:SetText(lastResult)
-		if lastResult == "PERFEITO" then resultText:SetTextColor(0.2, 1, 0.2)
+		resultText:SetText(L[lastResult])
+		if lastResult == "RESULT_PERFECT" then resultText:SetTextColor(0.2, 1, 0.2)
 		else resultText:SetTextColor(1, 0.3, 0.3) end
 	else
 		resultText:SetText("")
@@ -448,6 +488,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 		for k, v in pairs(defaults) do
 			if db[k] == nil then db[k] = v end
 		end
+		ApplyLocale()
 		playerGUID = UnitGUID("player")
 		self:ClearAllPoints()
 		self:SetPoint(unpack(db.point))
@@ -498,7 +539,7 @@ f:SetScript("OnEvent", function(self, event, ...)
 		if twistKey and spell == S[twistKey].name and now - lastCommandSeen < 0.3 then
 			if now - lastSwing < 0.25 and lastSwing > 0 then
 				streak = 0
-				lastResult, lastResultAt = "ATRASADO", now
+				lastResult, lastResultAt = "RESULT_LATE", now
 				twistCastAt = nil
 			else
 				twistCastAt = now
@@ -559,7 +600,7 @@ function BuildOptions()
 	scroll:SetPoint("TOPLEFT", 0, -4)
 	scroll:SetPoint("BOTTOMRIGHT", -26, 4)
 	local content = CreateFrame("Frame", nil, scroll)
-	content:SetWidth(360) content:SetHeight(640)
+	content:SetWidth(360) content:SetHeight(700)
 	scroll:SetScrollChild(content)
 
 	local title = content:CreateFontString(nil, "ARTWORK", "GameFontNormalLarge")
@@ -568,13 +609,62 @@ function BuildOptions()
 	local desc = content:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
 	desc:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -6)
 	desc:SetWidth(340) desc:SetJustifyH("LEFT")
-	desc:SetText("Seal twisting para Paladino Retribution. Shift + arrastar move a janela.")
+
+	-- Textos do painel ficam numa lista para poderem ser trocados ao mudar o idioma
+	local labels = {}
+	local function Label(fs, key)
+		table.insert(labels, { fs, key })
+		return fs
+	end
+	Label(desc, "DESC")
+
+	-- Idioma
+	local langLabel = Label(content:CreateFontString(nil, "ARTWORK", "GameFontNormal"), "LANGUAGE")
+	langLabel:SetPoint("TOPLEFT", desc, "BOTTOMLEFT", 0, -12)
+
+	-- Largura e texto do dropdown direto nas partes do template:
+	-- as funções UIDropDownMenu_SetWidth/SetText mudaram de assinatura entre versões
+	local dd = CreateFrame("Frame", "SilvioSwingerOptLanguage", content, "UIDropDownMenuTemplate")
+	dd:SetPoint("TOPLEFT", langLabel, "BOTTOMLEFT", -16, -2)
+	getglobal("SilvioSwingerOptLanguageMiddle"):SetWidth(180)
+	getglobal("SilvioSwingerOptLanguageText"):SetWidth(180)
+	dd:SetWidth(180 + 50)
+
+	local function LocaleLabel(code)
+		if code == "auto" then
+			return string.format(L.LANG_AUTO, LOCALES[ResolveLocale(GetLocale())]._name)
+		end
+		-- idioma salvo cujo arquivo foi removido: mostra o código mesmo
+		return LOCALES[code] and LOCALES[code]._name or code
+	end
+
+	local function RefreshTexts()
+		for _, e in ipairs(labels) do e[1]:SetText(L[e[2]]) end
+		getglobal("SilvioSwingerOptLanguageText"):SetText(LocaleLabel(db.locale))
+	end
+
+	UIDropDownMenu_Initialize(dd, function()
+		local function Add(code)
+			local info = {}
+			info.text = LocaleLabel(code)
+			info.value = code
+			info.checked = (db.locale == code) and 1 or nil
+			info.func = function()
+				db.locale = code
+				ApplyLocale()
+				RefreshTexts()
+			end
+			UIDropDownMenu_AddButton(info)
+		end
+		Add("auto")
+		for _, code in ipairs(LocaleCodes()) do Add(code) end
+	end)
 
 	-- Checkbox ligado a um campo do db
 	local function Check(key, label, anchor, onChange)
 		local cb = CreateFrame("CheckButton", "SilvioSwingerOpt_" .. key, content, "OptionsCheckButtonTemplate")
 		cb:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, -2)
-		getglobal(cb:GetName() .. "Text"):SetText(label)
+		Label(getglobal(cb:GetName() .. "Text"), label)
 		cb:SetScript("OnShow", function(self) self:SetChecked(db[key] and 1 or nil) end)
 		cb:SetScript("OnClick", function(self)
 			db[key] = self:GetChecked() and true or false
@@ -591,7 +681,7 @@ function BuildOptions()
 		sl:SetPoint("TOPLEFT", anchor, "BOTTOMLEFT", 0, -26)
 		sl:SetMinMaxValues(low, high)
 		sl:SetValueStep(step)
-		getglobal(name .. "Text"):SetText(label)
+		Label(getglobal(name .. "Text"), label)
 		getglobal(name .. "Low"):SetText(string.format(fmt, low))
 		getglobal(name .. "High"):SetText(string.format(fmt, high))
 		local val = sl:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")
@@ -615,39 +705,38 @@ function BuildOptions()
 	-- Opções liga/desliga
 	local anchor = CreateFrame("Frame", nil, content)
 	anchor:SetWidth(1) anchor:SetHeight(1)
-	anchor:SetPoint("TOPLEFT", desc, "BOTTOMLEFT", -2, -8)
+	anchor:SetPoint("TOPLEFT", dd, "BOTTOMLEFT", 14, -6)
 
-	local c1 = Check("hidden", "Esconder a janela", anchor, SetHidden)
-	local c2 = Check("locked", "Travar posição (nem com Shift move)", c1)
-	local c3 = Check("judge", "Sugerir Julgamento depois do twist", c2)
-	local c4 = Check("sound", "Som quando a janela de twist abre", c3, function(v)
+	local c1 = Check("hidden", "OPT_HIDDEN", anchor, SetHidden)
+	local c2 = Check("locked", "OPT_LOCKED", c1)
+	local c3 = Check("judge", "OPT_JUDGE", c2)
+	local c4 = Check("sound", "OPT_SOUND", c3, function(v)
 		if v then PlayTwistSound() end
 	end)
-	local c5 = Check("dmgMsg", "Mostrar \"TWIST DAMAGE\" no topo da tela", c4)
-	local c6 = Check("breakdown", "Detalhar o dano (hit + SoC + SoB)", c5)
+	local c5 = Check("dmgMsg", "OPT_DMGMSG", c4)
+	local c6 = Check("breakdown", "OPT_BREAKDOWN", c5)
 
 	-- Sliders de tempo / aparência, embaixo das opções
-	local header = content:CreateFontString(nil, "ARTWORK", "GameFontNormal")
+	local header = Label(content:CreateFontString(nil, "ARTWORK", "GameFontNormal"), "HEADER_TUNING")
 	header:SetPoint("TOPLEFT", c6, "BOTTOMLEFT", 4, -16)
-	header:SetText("Ajustes")
 
-	local s1 = Slider("window", "Janela de twist", 0.10, 0.80, 0.01, "%.2fs", header)
-	local s2 = Slider("buffer", "Margem extra (além da latência)", 0, 0.30, 0.01, "%.2fs", s1)
-	local s3 = Slider("csSlack", "Folga para Crusader Strike", 0, 0.50, 0.01, "%.2fs", s2)
-	local s4 = Slider("lowMana", "Aviso de mana baixa", 0, 0.50, 0.01, "%.2f", s3)
-	local s5 = Slider("scale", "Escala da janela", 0.5, 2.0, 0.05, "%.2f", s4, function(v) f:SetScale(v) end)
+	local s1 = Slider("window", "SL_WINDOW", 0.10, 0.80, 0.01, "%.2fs", header)
+	local s2 = Slider("buffer", "SL_BUFFER", 0, 0.30, 0.01, "%.2fs", s1)
+	local s3 = Slider("csSlack", "SL_CSSLACK", 0, 0.50, 0.01, "%.2fs", s2)
+	local s4 = Slider("lowMana", "SL_LOWMANA", 0, 0.50, 0.01, "%.2f", s3)
+	local s5 = Slider("scale", "SL_SCALE", 0.5, 2.0, 0.05, "%.2f", s4, function(v) f:SetScale(v) end)
 
 	-- Botões
 	local b1 = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
 	b1:SetWidth(150) b1:SetHeight(22)
 	b1:SetPoint("TOPLEFT", s5, "BOTTOMLEFT", 0, -30)
-	b1:SetText("Resetar posição")
+	Label(b1, "BTN_RESET_POS")
 	b1:SetScript("OnClick", ResetPosition)
 
 	local b2 = CreateFrame("Button", nil, content, "UIPanelButtonTemplate")
 	b2:SetWidth(150) b2:SetHeight(22)
 	b2:SetPoint("LEFT", b1, "RIGHT", 8, 0)
-	b2:SetText("Zerar dano / streak")
+	Label(b2, "BTN_RESET_STATS")
 	b2:SetScript("OnClick", function()
 		twistStats.count, twistStats.total, twistStats.biggest = 0, 0, 0
 		streak, best = 0, 0
@@ -658,15 +747,17 @@ function BuildOptions()
 	stats:SetWidth(340) stats:SetJustifyH("LEFT")
 	panel:SetScript("OnUpdate", function()
 		local c = twistStats.count
-		stats:SetText(string.format("Twists: %d   Dano total: %d\nMédia: %d   Maior: %d\nStreak: %d (melhor %d)",
+		stats:SetText(string.format(L.STATS,
 			c, twistStats.total, c > 0 and twistStats.total / c or 0, twistStats.biggest, streak, best))
 	end)
 
 	local foot = content:CreateFontString(nil, "ARTWORK", "GameFontDisableSmall")
 	foot:SetPoint("TOPLEFT", stats, "BOTTOMLEFT", 0, -16)
 	foot:SetWidth(340) foot:SetJustifyH("LEFT")
-	foot:SetText("Comandos: /silvio ou /ss  (/silvio config abre este painel)")
+	Label(foot, "FOOTER")
 
+	RefreshTexts()
+	panel:SetScript("OnShow", RefreshTexts)
 	InterfaceOptions_AddCategory(panel)
 	optionsPanel = panel
 end
@@ -680,35 +771,49 @@ SlashCmdList.SILVIOSWINGER = function(input)
 	if not db then return end
 	if cmd == "config" or cmd == "opcoes" then
 		InterfaceOptionsFrame_OpenToFrame(optionsPanel)
-	elseif cmd == "lock" then db.locked = true Print("travado")
-	elseif cmd == "unlock" then db.locked = false Print("destravado (arraste a janela)")
-	elseif cmd == "window" and n then db.window = n Print("janela = " .. n .. "s")
-	elseif cmd == "buffer" and n then db.buffer = n Print("buffer = " .. n .. "s")
-	elseif cmd == "cs" and n then db.csSlack = n Print("folga CS = " .. n .. "s")
-	elseif cmd == "scale" and n then db.scale = n f:SetScale(n) Print("escala = " .. n)
-	elseif cmd == "judge" then db.judge = not db.judge Print("julgamento: " .. tostring(db.judge))
+	elseif cmd == "lock" then db.locked = true Print(L.CHAT_LOCKED)
+	elseif cmd == "unlock" then db.locked = false Print(L.CHAT_UNLOCKED)
+	elseif cmd == "window" and n then db.window = n Print(string.format(L.CHAT_WINDOW, n))
+	elseif cmd == "buffer" and n then db.buffer = n Print(string.format(L.CHAT_BUFFER, n))
+	elseif cmd == "cs" and n then db.csSlack = n Print(string.format(L.CHAT_CS, n))
+	elseif cmd == "scale" and n then db.scale = n f:SetScale(n) Print(string.format(L.CHAT_SCALE, n))
+	elseif cmd == "judge" then db.judge = not db.judge Print(string.format(L.CHAT_JUDGE, OnOff(db.judge)))
 	elseif cmd == "sound" then
 		db.sound = not db.sound
 		if db.sound then PlayTwistSound() end
-		Print("som: " .. tostring(db.sound))
-	elseif cmd == "msg" then db.dmgMsg = not db.dmgMsg Print("mensagem de dano: " .. tostring(db.dmgMsg))
-	elseif cmd == "detail" then db.breakdown = not db.breakdown Print("detalhes do dano: " .. tostring(db.breakdown))
+		Print(string.format(L.CHAT_SOUND, OnOff(db.sound)))
+	elseif cmd == "msg" then db.dmgMsg = not db.dmgMsg Print(string.format(L.CHAT_MSG, OnOff(db.dmgMsg)))
+	elseif cmd == "detail" then db.breakdown = not db.breakdown Print(string.format(L.CHAT_DETAIL, OnOff(db.breakdown)))
 	elseif cmd == "dmg" then
 		local c = twistStats.count
-		Print(string.format("twists: %d | dano total: %d | média: %d | maior: %d",
+		Print(string.format(L.CHAT_DMG,
 			c, twistStats.total, c > 0 and twistStats.total / c or 0, twistStats.biggest))
 	elseif cmd == "dmgreset" then
 		twistStats.count, twistStats.total, twistStats.biggest = 0, 0, 0
-		Print("contagem de dano zerada")
+		Print(L.CHAT_DMGRESET)
 	elseif cmd == "show" then SetHidden(false)
 	elseif cmd == "hide" then SetHidden(true)
+	elseif cmd == "lang" or cmd == "idioma" then
+		-- aceita "auto" ou um código de Locales/ sem diferenciar maiúsculas (ptbr, PTBR...)
+		local want = string.lower(arg or "")
+		local found = want == "auto" and "auto" or nil
+		for _, code in ipairs(LocaleCodes()) do
+			if string.lower(code) == want then found = code end
+		end
+		if found then
+			db.locale = found
+			ApplyLocale()
+			Print(string.format(L.CHAT_LANG, LOCALES[L._code]._name))
+		else
+			Print(string.format(L.CHAT_LANG_UNKNOWN, arg or "", "auto, " .. table.concat(LocaleCodes(), ", ")))
+		end
 	elseif cmd == "reset" then
 		streak, best = 0, 0
 		ResetPosition()
-		Print("resetado")
+		Print(L.CHAT_RESET)
 	else
-		Print(string.format("selo de twist: %s | arma %.2fs | janela %.2fs | buffer %.2fs",
-			twistKey and S[twistKey].name or "nenhum", speed, db.window, db.buffer))
-		Print("/silvio config | lock | unlock | window <s> | buffer <s> | cs <s> | scale <n> | judge | sound | msg | detail | dmg | dmgreset | show | hide | reset")
+		Print(string.format(L.CHAT_STATUS,
+			twistKey and S[twistKey].name or L.NONE, speed, db.window, db.buffer))
+		Print("/silvio config | lock | unlock | window <s> | buffer <s> | cs <s> | scale <n> | judge | sound | msg | detail | dmg | dmgreset | show | hide | lang <auto|enUS|ptBR|...> | reset")
 	end
 end

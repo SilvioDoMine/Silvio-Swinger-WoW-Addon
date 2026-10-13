@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 356" width="820" height="356" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title>SilvioSwinger — chronologie d'un coup</title>
+  <rect width="820" height="356" rx="12" fill="#14161b"/>
+
+  <text x="40" y="38" fill="#e8e8e8" font-size="18" font-weight="600">Un coup d'arme (ex. 3,5s) sur la barre de SilvioSwinger</text>
+  <text x="40" y="60" fill="#9aa0a8" font-size="13">Échelle approximative : fenêtre 0,40s, latence + marge ≈ 0,10s, GCD 1,5s</text>
+
+  <line x1="40" y1="95" x2="40" y2="200" stroke="#e8e8e8" stroke-width="2"/>
+  <text x="40" y="88" fill="#e8e8e8" font-size="13" text-anchor="middle">coup</text>
+  <line x1="760" y1="95" x2="760" y2="200" stroke="#e8e8e8" stroke-width="2"/>
+  <text x="766" y="88" fill="#e8e8e8" font-size="13" text-anchor="end">coup suivant</text>
+
+  <rect x="40" y="120" width="720" height="34" fill="#000" opacity="0.6"/>
+  <rect x="40" y="120" width="560" height="34" fill="#cfcfcf" opacity="0.8"/>
+  <rect x="678" y="120" width="61" height="34" fill="#1ae61a" opacity="0.6"/>
+  <rect x="739" y="120" width="21" height="34" fill="#e61a1a" opacity="0.75"/>
+  <rect x="368" y="114" width="3" height="46" fill="#ffcc00"/>
+
+  <text x="200" y="176" fill="#9aa0a8" font-size="12" text-anchor="middle">temps écoulé (remplissage gris)</text>
+  <text x="369" y="108" fill="#ffcc00" font-size="12" text-anchor="middle">dernier GCD libre</text>
+
+  <line x1="708" y1="160" x2="708" y2="214" stroke="#1ae61a" stroke-width="1.5"/>
+  <text x="708" y="228" fill="#1ae61a" font-size="13" font-weight="600" text-anchor="middle">TWIST!</text>
+  <text x="708" y="244" fill="#9aa0a8" font-size="11" text-anchor="middle">SoB / SoR ici</text>
+
+  <line x1="750" y1="160" x2="750" y2="262" stroke="#e61a1a" stroke-width="1.5"/>
+  <text x="756" y="276" fill="#e61a1a" font-size="12" text-anchor="end">trop tard</text>
+
+  <g font-size="12">
+    <rect x="40" y="292" width="12" height="12" fill="#cfcfcf"/>
+    <text x="58" y="302" fill="#e8e8e8">SoC actif · Frappe du croisé si elle tient avant la ligne jaune</text>
+    <rect x="505.36" y="292" width="12" height="12" fill="#1ae61a"/>
+    <text x="523.36" y="302" fill="#e8e8e8">changement de sceau</text>
+    <rect x="40" y="312" width="12" height="12" fill="#e61a1a"/>
+    <text x="58" y="322" fill="#e8e8e8">n'arrive pas à temps (lag)</text>
+  </g>
+  <text x="40" y="342" fill="#9aa0a8" font-size="12">Après le coup : les deux sceaux se déclenchent ensemble → Jugement (hors GCD) → SoC à nouveau.</text>
+</svg>

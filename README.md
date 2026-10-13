@@ -1,149 +1,185 @@
 # SilvioSwinger
 
-Indicador simples de **seal twisting** para Paladino Retribution no cliente **2.4.3** (The Burning Crusade).
+**English** · [Português (Brasil)](README.ptBR.md) · [Čeština](README.csCZ.md) · [Deutsch](README.deDE.md) · [Español](README.esES.md) · [Français](README.frFR.md) · [Русский](README.ruRU.md)
 
-Ele mostra um swing timer com a janela de twist, diz qual magia apertar agora e qual vem depois, mede o dano de cada twist e conta quantos twists seguidos você acertou (streak).
+A simple **seal twisting** helper for Retribution Paladins on the **2.4.3** client (The Burning Crusade).
 
-![Linha do tempo de um swing](docs/swing-timeline.svg)
+It shows a swing timer with the twist window, tells you which spell to press now and which one comes next, measures the damage of each twist and counts how many twists in a row you landed (streak).
 
-## O que é seal twisting
+![Timeline of one swing](docs/swing-timeline.svg)
 
-Com o **Seal of Command (SoC)** ativo, você troca para outro selo (**Seal of Blood**, **Seal of Righteousness** ou **Seal of the Martyr**) nos últimos ~0,4s antes do swing. O swing que cai logo depois aciona **os dois selos**. Em seguida você usa Julgamento (que não depende do GCD) e coloca o SoC de novo para o próximo swing.
+## What seal twisting is
+
+With **Seal of Command (SoC)** active, you switch to another seal (**Seal of Blood**, **Seal of Righteousness** or **Seal of the Martyr**) in the last ~0.4s before the swing. The swing that lands right after triggers **both seals**. Then you use Judgement (which doesn't depend on the GCD) and put SoC back up for the next swing.
 
 ```mermaid
 sequenceDiagram
-    participant P as Você
-    participant A as Arma
+    participant P as You
+    participant A as Weapon
     P->>P: Seal of Command
-    Note over P,A: espera (Crusader Strike se couber)
-    P->>P: TWIST! SoB / SoR (janela verde)
-    A->>A: Swing → SoC + SoB procam juntos
-    P->>P: Julgamento
-    P->>P: Seal of Command de novo
+    Note over P,A: wait (Crusader Strike if it fits)
+    P->>P: TWIST! SoB / SoR (green window)
+    A->>A: Swing → SoC + SoB proc together
+    P->>P: Judgement
+    P->>P: Seal of Command again
 ```
 
-## Instalação
+## Installation
 
-1. Copie a pasta `SilvioSwinger` para `World of Warcraft/Interface/AddOns/`.
-2. Entre no jogo com um Paladino. Em outras classes o addon se esconde sozinho.
-3. Para mover a janela, segure **Shift** e arraste.
+1. Copy the `SilvioSwinger` folder to `World of Warcraft/Interface/AddOns/`.
+2. Log in with a Paladin. On other classes the addon hides itself.
+3. To move the window, hold **Shift** and drag.
 
-## A janela
+## The window
 
 ```
- [ícone agora] [próximo]  TWIST!
-                          MANA BAIXA  lat 85ms
+ [icon now] [next]  TWIST!
+                    LOW MANA  lat 85ms
  [████████████████░░░░░░░|░░░░░░░░░░▓▓▓▓█]  1.23 / 3.50
- Streak 4 (melhor 9)  média 2310              PERFEITO
+ Streak 4 (best 9)  avg 2310                  PERFECT
 ```
 
-| Elemento | Significado |
+| Element | Meaning |
 |---|---|
-| Ícone grande | O que apertar **agora** (brilha quando é hora) |
-| Ícone pequeno | O que vem **depois** |
-| Texto | Instrução: `Prepare SoC`, `Crusader Strike`, `Espere 1.2s`, `TWIST!`, `Julgamento + SoC`, `GCD: perdeu`, `Tarde demais` |
-| `lat` | Latência atual + buffer. Aparece `MANA BAIXA` abaixo do limite configurado |
-| Barra cinza | Tempo até o próximo swing (restante / velocidade da arma) |
-| Linha amarela | Último momento para usar o GCD (SoC/CS) sem perder o twist |
-| Zona verde | Janela de twist: troque o selo aqui |
-| Zona vermelha | Latência: um selo usado aqui chega depois do swing |
-| Streak / resultado | Ver [Streak](#streak) |
+| Large icon | What to press **now** (glows when it's time) |
+| Small icon | What comes **next** |
+| Text | Instruction: `Prepare SoC`, `Crusader Strike`, `Wait 1.2s`, `TWIST!`, `Judgement + SoC`, `GCD: missed`, `Too late` |
+| `lat` | Current latency + buffer. `LOW MANA` shows up below the configured threshold |
+| Grey bar | Time until the next swing (remaining / weapon speed) |
+| Yellow line | Last moment to use the GCD (SoC/CS) without losing the twist |
+| Green zone | Twist window: swap the seal here |
+| Red zone | Latency: a seal used here lands after the swing |
+| Streak / result | See [Streak](#streak) |
 
-Se a arma for rápida demais para caber SoC + twist no mesmo swing, a linha amarela some.
+If the weapon is too fast to fit SoC + twist in the same swing, the yellow line disappears.
 
-## Como ele decide o que recomendar
+## How it decides what to recommend
 
 ```mermaid
 flowchart TD
-    A{Conhece Seal of Command?} -- não --> X[Sem Seal of Command]
-    A -- sim --> B{Em combate com swing previsto?}
-    B -- não --> C{SoC ativo?}
-    C -- sim --> C1[Pronto SoC]
-    C -- não --> C2[Prepare SoC]
-    B -- sim --> D{Selo ativo é SoC?}
-    D -- sim --> E{Faltam ≤ janela e > latência?}
-    E -- sim, GCD livre a tempo --> T[TWIST!]
-    E -- sim, GCD não libera --> G[GCD: perdeu]
-    E -- faltam ≤ latência --> L[Tarde demais]
-    E -- ainda longe --> F{CS pronto e cabe antes da janela?}
-    F -- sim --> CS[Crusader Strike]
-    F -- não --> W[Espere Xs]
-    D -- não --> J{Selo de twist ativo e Julgamento pronto?}
-    J -- sim --> JU[Julgamento + SoC]
-    J -- não --> S[Seal of Command]
+    A{"Knows Seal of Command?"} -- no --> X["No Seal of Command"]
+    A -- yes --> B{"In combat with a predicted swing?"}
+    B -- no --> C{"SoC active?"}
+    C -- yes --> C1["Ready (SoC)"]
+    C -- no --> C2["Prepare SoC"]
+    B -- yes --> D{"Is the active seal SoC?"}
+    D -- yes --> E{"Time left ≤ window and > latency?"}
+    E -- yes, GCD frees up in time --> T["TWIST!"]
+    E -- yes, GCD won't free up --> G["GCD: missed"]
+    E -- time left ≤ latency --> L["Too late"]
+    E -- still far away --> F{"CS ready and fits before the window?"}
+    F -- yes --> CS["Crusader Strike"]
+    F -- no --> W["Wait Xs"]
+    D -- no --> J{"Twist seal active and Judgement ready?"}
+    J -- yes --> JU["Judgement + SoC"]
+    J -- no --> S["Seal of Command"]
 ```
 
-O selo de twist é escolhido pelo grimório, nesta ordem: Seal of Blood, Seal of the Martyr e Seal of Righteousness. Todos os nomes vêm do spell ID, então o addon funciona em qualquer idioma do cliente.
+The twist seal is picked from the spellbook in this order: Seal of Blood, Seal of the Martyr and Seal of Righteousness. All spell names come from the spell ID, so the addon works with any client language.
 
-Mudanças de haste (Bloodlust, Drums, Haste Potion) reescalam o swing em andamento. Magias com tempo de cast (Exorcism, Flash of Light) reiniciam o timer. Ataques extras (Windfury, Hand of Justice) não reiniciam.
+Haste changes (Bloodlust, Drums, Haste Potion) rescale the swing in progress. Spells with a cast time (Exorcism, Flash of Light) restart the timer. Extra attacks (Windfury, Hand of Justice) don't.
 
 ## Streak
 
-O streak conta quantos **twists com timing certo** você fez em sequência.
+The streak counts how many **correctly timed twists** you made in a row.
 
 ```mermaid
 stateDiagram-v2
-    [*] --> Aguardando
-    Aguardando --> Avaliando: conjurou SoB/SoR/SoM com SoC ativo
-    Aguardando --> Atrasado: conjurou até 0,25s depois do swing
-    Avaliando --> Perfeito: próximo swing até janela + 0,1s
-    Avaliando --> CedoDemais: swing demorou mais que isso
-    Avaliando --> Aguardando: saiu de combate (descarta, sem zerar)
-    Perfeito --> Aguardando: streak +1
-    CedoDemais --> Aguardando: streak = 0
-    Atrasado --> Aguardando: streak = 0
+    state "Waiting" as Waiting
+    state "Evaluating" as Evaluating
+    state "PERFECT" as Perfect
+    state "TOO EARLY" as Early
+    state "LATE" as Late
+    [*] --> Waiting
+    Waiting --> Evaluating: cast SoB/SoR/SoM with SoC active
+    Waiting --> Late: cast up to 0.25s after the swing
+    Evaluating --> Perfect: next swing within window + 0.1s
+    Evaluating --> Early: swing took longer than that
+    Evaluating --> Waiting: left combat (discarded, no reset)
+    Perfect --> Waiting: streak +1
+    Early --> Waiting: streak = 0
+    Late --> Waiting: streak = 0
 ```
 
-- Só existe tentativa quando o selo de twist é usado com o SoC ativo nos últimos 0,3s.
-- Swings sem tentativa não quebram o streak.
-- Trocar de alvo ou sair de combate não zera o streak.
-- Um swing que erra (miss/dodge) também conta como swing.
-- `streak` e `melhor` **não são salvos**. Eles zeram em `/reload`, no logout, com `/silvio reset` ou com o botão do painel.
+- An attempt only exists when the twist seal is used with SoC active in the last 0.3s.
+- Swings without an attempt don't break the streak.
+- Switching targets or leaving combat doesn't reset the streak.
+- A swing that misses (miss/dodge) still counts as a swing.
+- `streak` and `best` **are not saved**. They reset on `/reload`, on logout, with `/silvio reset` or with the panel button.
 
-## Dano do twist
+## Twist damage
 
-Tudo que cai junto com o swing em até 0,4s (hit branco, ataques extras e procs de selo) entra num mesmo "pacote". Se dois selos procaram juntos, ou se o twist foi feito no tempo certo, o total aparece no topo da tela:
+Everything that lands with the swing within 0.4s (white hit, extra attacks and seal procs) goes into the same "bundle". If two seals procced together, or if the twist was timed correctly, the total shows up at the top of the screen:
 
 ```
 TWIST DAMAGE: 2480  (hit 1320 + SoC 690 + SoB 470)
 ```
 
-O dano que o Seal of Blood causa em você mesmo é ignorado.
+Damage that Seal of Blood deals to yourself is ignored.
 
-## Comandos
+## Commands
 
-`/silvio` ou `/ss`
+`/silvio` or `/ss`
 
-| Comando | Efeito |
+| Command | Effect |
 |---|---|
-| `/silvio` | Mostra o estado atual e a lista de comandos |
-| `/silvio config` | Abre o painel (ESC > Interface > AddOns > SilvioSwinger) |
-| `/silvio lock` / `unlock` | Trava ou destrava a posição |
-| `/silvio window <s>` | Tamanho da janela de twist |
-| `/silvio buffer <s>` | Margem extra somada à latência |
-| `/silvio cs <s>` | Folga exigida para encaixar Crusader Strike |
-| `/silvio scale <n>` | Escala da janela |
-| `/silvio judge` | Liga/desliga a sugestão de Julgamento |
-| `/silvio sound` | Liga/desliga o som quando a janela abre (ao ligar, toca uma prévia) |
-| `/silvio msg` | Liga/desliga `TWIST DAMAGE` no topo |
-| `/silvio detail` | Liga/desliga o detalhamento do dano |
-| `/silvio dmg` | Mostra as estatísticas de dano |
-| `/silvio dmgreset` | Zera as estatísticas de dano |
-| `/silvio show` / `hide` | Mostra ou esconde a janela (a lógica continua rodando) |
-| `/silvio reset` | Zera o streak e reposiciona a janela |
+| `/silvio` | Shows the current state and the command list |
+| `/silvio config` | Opens the panel (ESC > Interface > AddOns > SilvioSwinger) |
+| `/silvio lock` / `unlock` | Locks or unlocks the position |
+| `/silvio window <s>` | Size of the twist window |
+| `/silvio buffer <s>` | Extra margin added to latency |
+| `/silvio cs <s>` | Slack required to fit a Crusader Strike |
+| `/silvio scale <n>` | Window scale |
+| `/silvio judge` | Toggles the Judgement suggestion |
+| `/silvio sound` | Toggles the sound when the window opens (plays a preview when turned on) |
+| `/silvio msg` | Toggles `TWIST DAMAGE` at the top |
+| `/silvio detail` | Toggles the damage breakdown |
+| `/silvio dmg` | Shows damage statistics |
+| `/silvio dmgreset` | Resets damage statistics |
+| `/silvio show` / `hide` | Shows or hides the window (the logic keeps running) |
+| `/silvio lang <code>` | Changes the language (`auto`, `enUS`, `ptBR`, `csCZ`...) |
+| `/silvio reset` | Resets the streak and repositions the window |
 
-## Configurações
+## Settings
 
-Salvas em `SilvioSwingerDB`.
+Saved in `SilvioSwingerDB`.
 
-| Opção | Padrão | Descrição |
+| Option | Default | Description |
 |---|---|---|
-| `window` | 0,40s | Quanto antes do swing o twist ainda funciona |
-| `buffer` | 0,05s | Margem somada à latência |
-| `csSlack` | 0,10s | Folga para encaixar um Crusader Strike antes da janela |
-| `judge` | ligado | Sugerir Julgamento depois do twist |
-| `sound` | ligado | Ping do minimapa quando a janela de twist abre, uma vez por swing |
-| `lowMana` | 10% | Limite do aviso de mana baixa |
-| `dmgMsg` | ligado | Mensagem `TWIST DAMAGE` |
-| `breakdown` | ligado | Detalhar hit + selos na mensagem |
-| `scale` | 1,0 | Escala da janela |
+| `window` | 0.40s | How long before the swing the twist still works |
+| `buffer` | 0.05s | Margin added to latency |
+| `csSlack` | 0.10s | Slack to fit a Crusader Strike before the window |
+| `judge` | on | Suggest Judgement after the twist |
+| `sound` | on | Minimap ping when the twist window opens, once per swing |
+| `lowMana` | 10% | Low mana warning threshold |
+| `dmgMsg` | on | `TWIST DAMAGE` message |
+| `breakdown` | on | Break down hit + seals in the message |
+| `scale` | 1.0 | Window scale |
+| `locale` | `auto` | Interface language (`auto` = client language) |
+
+## Languages
+
+By default the addon uses the client language (`GetLocale()`). To change it, use the **Language** menu in the panel or `/silvio lang <code>`. The change applies immediately, no `/reload` needed.
+
+| Code | Language | Note |
+|---|---|---|
+| `enUS` | English | Base language. Also used by the `enGB` client and by any client without a translation |
+| `ptBR` | Português (Brasil) | There is no ptBR 2.4.3 client: enable it in the panel |
+| `csCZ` | Čeština | There is no csCZ 2.4.3 client: enable it in the panel |
+| `deDE` | Deutsch | |
+| `esES` | Español | Also used by the `esMX` client |
+| `frFR` | Français | |
+| `ruRU` | Русский | On a non-Russian client, the default font has no Cyrillic and the text may disappear |
+
+Spell names (Crusader Strike, Seal of Command...) still come from the client, because they are read by spell ID.
+
+If a letter shows up as a box or disappears (for example Czech `ř` or `ě`), the client font doesn't have that character.
+
+### Adding a language
+
+1. Copy `Locales/enUS.lua` to `Locales/<code>.lua` (e.g. `plPL.lua`).
+2. Replace `SilvioSwingerLocales.enUS` with `SilvioSwingerLocales.<code>`, adjust `_name` and translate the texts. Keep the `%d`, `%s` and `%.1f` in the same order.
+3. Add `Locales\<code>.lua` to `SilvioSwinger.toc`, before `SilvioSwinger.lua`.
+4. Optionally, add a `README.<code>.md` and link it in the language bar at the top of every README.
+
+Any text missing from a translation shows up in English.

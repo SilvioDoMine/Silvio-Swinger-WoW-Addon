@@ -4,4 +4,11 @@
 ## Author: arthurhenrique
 ## Version: 0.1
 ## SavedVariables: SilvioSwingerDB
+Locales\enUS.lua
+Locales\ptBR.lua
+Locales\csCZ.lua
+Locales\deDE.lua
+Locales\esES.lua
+Locales\frFR.lua
+Locales\ruRU.lua
 SilvioSwinger.lua

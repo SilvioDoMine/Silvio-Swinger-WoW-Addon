@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 336" width="820" height="336" font-family="Segoe UI, Helvetica, Arial, sans-serif">
+  <title>SilvioSwinger — linha do tempo de um swing</title>
+  <rect width="820" height="336" rx="12" fill="#14161b"/>
+
+  <text x="40" y="38" fill="#e8e8e8" font-size="18" font-weight="600">Um swing de arma (ex.: 3,5s) na barra do SilvioSwinger</text>
+  <text x="40" y="60" fill="#9aa0a8" font-size="13">Escala aproximada: janela 0,40s, latência + buffer ≈ 0,10s, GCD 1,5s</text>
+
+  <line x1="40" y1="95" x2="40" y2="200" stroke="#e8e8e8" stroke-width="2"/>
+  <text x="40" y="88" fill="#e8e8e8" font-size="13" text-anchor="middle">swing</text>
+  <line x1="760" y1="95" x2="760" y2="200" stroke="#e8e8e8" stroke-width="2"/>
+  <text x="766" y="88" fill="#e8e8e8" font-size="13" text-anchor="end">próximo swing</text>
+
+  <rect x="40" y="120" width="720" height="34" fill="#000" opacity="0.6"/>
+  <rect x="40" y="120" width="560" height="34" fill="#cfcfcf" opacity="0.8"/>
+  <rect x="678" y="120" width="61" height="34" fill="#1ae61a" opacity="0.6"/>
+  <rect x="739" y="120" width="21" height="34" fill="#e61a1a" opacity="0.75"/>
+  <rect x="368" y="114" width="3" height="46" fill="#ffcc00"/>
+
+  <text x="200" y="176" fill="#9aa0a8" font-size="12" text-anchor="middle">tempo passando (preenchimento cinza)</text>
+  <text x="369" y="108" fill="#ffcc00" font-size="12" text-anchor="middle">último GCD livre</text>
+
+  <line x1="708" y1="160" x2="708" y2="214" stroke="#1ae61a" stroke-width="1.5"/>
+  <text x="708" y="228" fill="#1ae61a" font-size="13" font-weight="600" text-anchor="middle">TWIST!</text>
+  <text x="708" y="244" fill="#9aa0a8" font-size="11" text-anchor="middle">SoB / SoR aqui</text>
+
+  <line x1="750" y1="160" x2="750" y2="262" stroke="#e61a1a" stroke-width="1.5"/>
+  <text x="756" y="276" fill="#e61a1a" font-size="12" text-anchor="end">tarde demais</text>
+
+  <g font-size="12">
+    <rect x="40" y="292" width="12" height="12" fill="#cfcfcf"/>
+    <text x="58" y="302" fill="#e8e8e8">SoC ativo · Crusader Strike se couber antes da linha amarela</text>
+    <rect x="485.20000000000005" y="292" width="12" height="12" fill="#1ae61a"/>
+    <text x="503.20000000000005" y="302" fill="#e8e8e8">troca de selo</text>
+    <rect x="614.5600000000001" y="292" width="12" height="12" fill="#e61a1a"/>
+    <text x="632.5600000000001" y="302" fill="#e8e8e8">não chega a tempo (lag)</text>
+  </g>
+  <text x="40" y="322" fill="#9aa0a8" font-size="12">Depois do swing: os dois selos procam juntos → Julgamento (fora do GCD) → SoC de novo.</text>
+</svg>
